@@ -3,6 +3,8 @@
 namespace Recca0120\Cart\Contracts;
 
 use ArrayAccess;
+use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Contracts\Support\Jsonable;
 use JsonSerializable;
 
 interface Item extends ArrayAccess, Arrayable, Jsonable, JsonSerializable

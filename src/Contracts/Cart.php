@@ -2,20 +2,27 @@
 
 namespace Recca0120\Cart\Contracts;
 
+use ArrayAccess;
 use Countable;
+use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Contracts\Support\Jsonable;
+use IteratorAggregate;
+use JsonSerializable;
 use Recca0120\Cart\Contracts\Item as ItemContract;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
-interface Cart extends Arrayable, Countable, Jsonable
+interface Cart extends ArrayAccess, Arrayable, Countable, IteratorAggregate, Jsonable, JsonSerializable, Storagable
 {
     /**
      * getId.
      *
      * @method getId
      *
+     * @param string|null $key
+     *
      * @return string
      */
-    public function getId();
+    public function getId($key = null);
 
     /**
      * setId.
@@ -29,36 +36,36 @@ interface Cart extends Arrayable, Countable, Jsonable
     public function setId($id);
 
     /**
-     * setSession.
-     *
-     * @method setSession
-     *
-     * @param \Symfony\Component\HttpFoundation\Session\SessionInterface $session
-     *
-     * @return static
-     */
-    public function setSession(SessionInterface $session);
-
-    /**
      * put.
      *
      * @method put
      *
-     * @param  \Recca0120\Cart\Contracts\Item   $item
-     * @param  int                              $quantity
+     * @param \Recca0120\Cart\Contracts\Item   $item
+     * @param int                              $quantity
      *
      * @return static
      */
     public function put(ItemContract $item, $quantity = 1);
 
     /**
-     * count.
+     * remove.
      *
-     * @method count
+     * @method remove
      *
-     * @return int
+     * @param \Recca0120\Cart\Contracts\Item|int   $item
+     *
+     * @return static
      */
-    public function count();
+    public function remove($item);
+
+    /**
+     * items.
+     *
+     * @method items
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    public function items();
 
     /**
      * total.
@@ -68,4 +75,16 @@ interface Cart extends Arrayable, Countable, Jsonable
      * @return int
      */
     public function total();
+
+    /**
+     * instance.
+     *
+     * @method instance
+     *
+     * @param string $id
+     * @param \Symfony\Component\HttpFoundation\Session\SessionInterface $session
+     *
+     * @return static
+     */
+    public static function instance($id = null, SessionInterface $session = null);
 }

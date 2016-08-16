@@ -2,18 +2,11 @@
 
 namespace Recca0120\Cart;
 
+use Illuminate\Support\Fluent;
 use Recca0120\Cart\Contracts\Item as ItemContract;
 
-class Item implements ItemContract
+class Item extends Fluent implements ItemContract
 {
-    public $attribute = [
-        'id'       => null,
-        'name'     => null,
-        'price'    => 0.00,
-        'quantity' => 1,
-        'options'  => [],
-    ];
-
     /**
      * __construct.
      *
@@ -24,7 +17,7 @@ class Item implements ItemContract
      * @param  int          $quantity
      * @param  float        $price
      */
-    public function __construct($id = null, $name = null, $price = 0.00, $options = [], $quantity = 1)
+    public function __construct($id = null, $name = null, $price = 0.00, $options = [], $quantity = 0)
     {
         $this
             ->setId($id)
@@ -206,129 +199,8 @@ class Item implements ItemContract
             return $this;
         }
 
-        $this->attribute['options'][$key] = $value;
+        $this->attributes['options'][$key] = $value;
 
         return $this;
-    }
-
-    /**
-     * Convert the Fluent instance to an array.
-     *
-     * @return array
-     */
-    public function toArray()
-    {
-        return $this->attribute;
-    }
-
-    /**
-     * Convert the object into something JSON serializable.
-     *
-     * @return array
-     */
-    public function jsonSerialize()
-    {
-        return $this->toArray();
-    }
-
-    /**
-     * Convert the Fluent instance to JSON.
-     *
-     * @param  int  $options
-     * @return string
-     */
-    public function toJson($options = 0)
-    {
-        return json_encode($this->jsonSerialize(), $options);
-    }
-
-    /**
-     * Determine if the given offset exists.
-     *
-     * @param  string  $offset
-     * @return bool
-     */
-    public function offsetExists($offset)
-    {
-        return isset($this->{$offset});
-    }
-
-    /**
-     * Get the value for a given offset.
-     *
-     * @param  string  $offset
-     * @return mixed
-     */
-    public function offsetGet($offset)
-    {
-        return $this->{$offset};
-    }
-
-    /**
-     * Set the value at the given offset.
-     *
-     * @param  string  $offset
-     * @param  mixed   $value
-     * @return void
-     */
-    public function offsetSet($offset, $value)
-    {
-        $this->{$offset} = $value;
-    }
-
-    /**
-     * Unset the value at the given offset.
-     *
-     * @param  string  $offset
-     * @return void
-     */
-    public function offsetUnset($offset)
-    {
-        unset($this->{$offset});
-    }
-
-    /**
-     * Dynamically retrieve the value of an attribute.
-     *
-     * @param  string  $key
-     * @return mixed
-     */
-    public function __get($key)
-    {
-        return $this->attribute[$key];
-    }
-
-    /**
-     * Dynamically set the value of an attribute.
-     *
-     * @param  string  $key
-     * @param  mixed   $value
-     * @return void
-     */
-    public function __set($key, $value)
-    {
-        $this->attribute[$key] = $value;
-    }
-
-    /**
-     * Dynamically check if an attribute is set.
-     *
-     * @param  string  $key
-     * @return bool
-     */
-    public function __isset($key)
-    {
-        return isset($this->attribute[$key]);
-    }
-
-    /**
-     * Dynamically unset an attribute.
-     *
-     * @param  string  $key
-     * @return void
-     */
-    public function __unset($key)
-    {
-        unset($this->attribute[$key]);
     }
 }

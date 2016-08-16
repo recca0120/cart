@@ -21,7 +21,7 @@ class ItemTest extends PHPUnit_Framework_TestCase
         $id = 1;
         $name = 'foo';
         $price = 100.00;
-        $quantity = 1;
+        $quantity = 0;
         $options = [];
 
         $attributes = compact('id', 'name', 'price', 'quantity', 'options');
@@ -70,7 +70,7 @@ class ItemTest extends PHPUnit_Framework_TestCase
         $id = 1;
         $name = 'foo';
         $price = 100.00;
-        $quantity = 1;
+        $quantity = 0;
         $options = [];
 
         $attributes = compact('id', 'name', 'price', 'quantity', 'options');
@@ -94,49 +94,9 @@ class ItemTest extends PHPUnit_Framework_TestCase
         ];
         $item->setOptions($options);
         $this->assertSame($options, $item->getOptions());
-
-        $item->setOption('fuzz', 'buzz');
-        $this->assertSame(array_merge($options, ['fuzz' => 'buzz']), $item->getOptions());
+        $this->assertSame('bar', $item->getOption('foo'));
 
         $item->setOptions([]);
         $item->setOption($options);
-        $this->assertSame($options, $item->getOptions());
-        $this->assertSame('bar', $item->getOption('foo'));
-    }
-
-    public function test_array_access()
-    {
-        /*
-        |------------------------------------------------------------
-        | Set
-        |------------------------------------------------------------
-        */
-
-        $id = 1;
-        $name = 'foo';
-        $price = 100.00;
-        $options = [];
-
-        $attributes = compact('id', 'name', 'price', 'options');
-
-        /*
-        |------------------------------------------------------------
-        | Expectation
-        |------------------------------------------------------------
-        */
-
-        $item = new Item($id, $name, $price);
-
-        /*
-        |------------------------------------------------------------
-        | Assertion
-        |------------------------------------------------------------
-        */
-
-        $this->assertTrue(isset($item['id']));
-        unset($item['id']);
-        $this->assertFalse(isset($item['id']));
-        $item['id'] = $id;
-        $this->assertTrue(isset($item['id']));
     }
 }
