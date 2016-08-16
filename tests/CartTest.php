@@ -1,9 +1,9 @@
 <?php
 
 use Faker\Factory as FakerFactory;
-use Illuminate\Support\Collection;
 use Mockery as m;
 use Recca0120\Cart\Cart;
+use Recca0120\Cart\Coupons\FreeShippingCoupon;
 use Recca0120\Cart\Item;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
@@ -22,16 +22,11 @@ class CartTest extends PHPUnit_Framework_TestCase
         |------------------------------------------------------------
         */
 
-        $id = uniqid();
-        $hash = hash(Cart::ALGORITHM, $id);
         $faker = FakerFactory::create();
         $session = m::mock(SessionInterface::class);
-        $items = new Collection();
-        $j = 0;
-        for ($i = 0; $i < 10; $i++) {
-            $item = new Item($j++, $faker->name, $faker->numberBetween(100, 1000));
-            $items->put($item->getId(), $item);
-        }
+        $id = uniqid();
+        $hash = Cart::getHash($id);
+        $items = collect();
 
         /*
         |------------------------------------------------------------
@@ -39,21 +34,16 @@ class CartTest extends PHPUnit_Framework_TestCase
         |------------------------------------------------------------
         */
 
+        $itemLength = 10;
+        for ($i = 1; $i <= $itemLength; $i++) {
+            $items->put($i, new Item($i, $faker->name, $faker->numberBetween(100, 1000)));
+        }
+
         $session
             ->shouldReceive('isStarted')->once()->andReturn(false)
             ->shouldReceive('start')->once()
-            ->shouldReceive('get')->with($hash.Cart::ITEM_KEY)->andReturn(serialize(collect()))
-            ->shouldReceive('set')
-            ->shouldReceive('save');
-
-        $cart = new Cart($id, $session);
-
-        $total = $items->reduce(function ($prev, $next) use ($cart, $faker) {
-            $quantity = $faker->numberBetween(1, 10);
-            $cart->put($next, $quantity);
-
-            return $prev + $next->getQuantity() * $next->getPrice();
-        }, 0);
+            ->shouldReceive('get')->once()->andReturn([])
+            ->shouldReceive('set');
 
         /*
         |------------------------------------------------------------
@@ -61,24 +51,27 @@ class CartTest extends PHPUnit_Framework_TestCase
         |------------------------------------------------------------
         */
 
-        $this->assertSame($hash, $cart->getId());
-        $this->assertSame($session, $cart->getStorage());
-        $this->assertSame($items->count(), $cart->count());
-        $this->assertSame($total, $cart->total());
-        $this->assertSame($items->toArray(), $cart->toArray());
-        $this->assertSame($items->toArray(), $cart->items()->toArray());
-        $this->assertSame($items->toJson(), $cart->toJson());
-        $this->assertSame($items->toJson(), (string) $cart);
-        $this->assertSame($items->getIterator()->getArrayCopy(), $cart->getIterator()->getArrayCopy());
-        $this->assertSame($items->getCachingIterator()->getArrayCopy(), $cart->getCachingIterator()->getArrayCopy());
-        $this->assertSame($cart, Cart::instance($id));
-        $cart->offsetExists(0);
-        $cart->offsetGet(0);
-        $cart->offsetSet(0, []);
-        $cart->offsetUnset(0);
+        $cart = new Cart($id, $session);
+        $itemTotal = $items->reduce(function ($prev, $item) use ($cart, $faker) {
+            $quantity = $faker->numberBetween(1, 10);
+            $cart->add($item, $quantity);
 
-        $count = $cart->count();
-        $cart->remove(2);
-        $this->assertSame($count - 1, $cart->count());
+            return $prev + $item->getTotal();
+        }, 0);
+
+        $this->assertSame($hash, $cart->getId());
+        $this->assertSame($items->toArray(), $cart->items()->toArray());
+        $this->assertSame($itemLength, $cart->count());
+        $this->assertSame($itemTotal, $cart->total());
+
+        $coupon = new FreeShippingCoupon(200, 5000000000);
+        $cart->addCoupon($coupon);
+        $this->assertSame($itemTotal + 200, $cart->total());
+
+        $cart->remove(1);
+        $this->assertSame($itemLength - 1, $cart->items()->count());
+
+        $cart->clear();
+        $this->assertSame(0, $cart->items()->count());
     }
 }

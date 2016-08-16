@@ -2,9 +2,10 @@
 
 namespace Recca0120\Cart;
 
-use CachingIterator;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Recca0120\Cart\Contracts\Cart as CartContract;
+use Recca0120\Cart\Contracts\Coupon as CouponContract;
 use Recca0120\Cart\Contracts\Item as ItemContract;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -12,126 +13,32 @@ use Symfony\Component\HttpFoundation\Session\Storage\PhpBridgeSessionStorage;
 
 class Cart implements CartContract
 {
-    const ALGORITHM = 'sha256';
+    protected static $session = null;
 
-    const ITEM_KEY = 'items';
+    protected $instance = [];
 
-    /**
-     * $instance.
-     *
-     * @var array
-     */
-    protected static $instance = [];
-
-    /**
-     * $id.
-     *
-     * @var string
-     */
-    protected $id;
-
-    /**
-     * $items.
-     *
-     * @var \Illuminate\Support\Collection
-     */
     protected $items;
 
-    /**
-     * $storage.
-     *
-     * @var \Symfony\Component\HttpFoundation\Session\SessionInterface
-     */
-    protected $storage;
+    protected $coupons;
+
+    protected $discounts;
 
     /**
-     * __construct.
+     * Create a new collection.
      *
-     * @method __construct
-     *
-     * @param string $id
-     * @param \Symfony\Component\HttpFoundation\Session\SessionInterface $storage
+     * @param  mixed  $items
+     * @return void
      */
-    public function __construct($id = null, SessionInterface $storage = null)
+    public function __construct($id = null, SessionInterface $session = null)
     {
-        $id = is_null($id) === true ? static::class : $id;
-        self::$instance[$id] = $this;
-        $this->items = new Collection();
-
         $this->setId($id);
-        $this->setStorage($storage);
-    }
-
-    /**
-     * getStorage.
-     *
-     * @method getStorage
-     *
-     * @return \Symfony\Component\HttpFoundation\Session\SessionInterface
-     */
-    public function getStorage()
-    {
-        return $this->storage;
-    }
-
-    /**
-     * setStorage.
-     *
-     * @method setStorage
-     *
-     * @param \Symfony\Component\HttpFoundation\Session\SessionInterface $storage
-     *
-     * @return static
-     */
-    public function setStorage(SessionInterface $storage = null)
-    {
-        $this->storage = is_null($storage) === false ? $storage : new Session(new PhpBridgeSessionStorage());
-        if ($this->storage->isStarted() === false) {
-            $this->storage->start();
-            $this->registerShutdownStorage();
+        if (is_null($session) === false) {
+            self::setSession($session);
         }
 
-        $items = $this->storage->get($this->getId(static::ITEM_KEY));
-        if (empty($items) === false) {
-            $this->items = unserialize($items);
-        }
-
-        return $this;
-    }
-
-    /**
-     * updateStorage.
-     *
-     * @method updateStorage
-     *
-     * @param string    $key
-     * @param mixed     $value
-     *
-     * @return static
-     */
-    public function updateStorage($key, $value)
-    {
-        $this->storage->set($this->getId(static::ITEM_KEY), serialize($value));
-
-        return $this;
-    }
-
-    /**
-     * registerShutdownStorage.
-     *
-     * @method registerShutdownStorage
-     *
-     * @return static
-     */
-    public function registerShutdownStorage()
-    {
-        register_shutdown_function(function () {
-            if ($this->storage->isStarted() === true) {
-                $this->storage->save();
-            }
-        });
-
-        return $this;
+        $data = $this->getSession()->get($this->getId());
+        $this->items = Arr::get($data, 'items', new Collection());
+        $this->coupons = Arr::get($data, 'coupons', new Collection());
     }
 
     /**
@@ -141,9 +48,9 @@ class Cart implements CartContract
      *
      * @return string
      */
-    public function getId($key = null)
+    public function getId()
     {
-        return $this->id.$key;
+        return $this->id;
     }
 
     /**
@@ -157,205 +64,147 @@ class Cart implements CartContract
      */
     public function setId($id)
     {
-        $this->id = hash(static::ALGORITHM, $id);
+        $id = is_null($id) === true ? static::class : $id;
+        $this->id = static::getHash($id);
 
         return $this;
     }
 
-    /**
-     * put.
-     *
-     * @method put
-     *
-     * @param \Recca0120\Cart\Contracts\Item   $item
-     * @param int                              $quantity
-     *
-     * @return static
-     */
-    public function put(ItemContract $item, $quantity = 1)
+    public function add(ItemContract $item, $quantity = 1)
+    {
+        return $this->addItem($item, $quantity);
+    }
+
+    public function remove($item)
+    {
+        return $this->removeItem($item);
+    }
+
+    public function items()
+    {
+        return $this->getItems();
+    }
+
+    public function count()
+    {
+        return $this->getItemCount();
+    }
+
+    public function grossTotal()
+    {
+        return $this->getGrossTotal();
+    }
+
+    public function total()
+    {
+        return $this->grossTotal() + $this->getDiscounts()->reduce(function ($prev, $next) {
+            return $prev + Arr::get($next, 'discount');
+        }, 0);
+    }
+
+    public function getDiscounts()
+    {
+        return $this->coupons->map(function ($coupon) {
+            $discount = $coupon->discount($this);
+            $description = $coupon->getDescription();
+
+            return compact('discount', 'description');
+        });
+    }
+
+    public function getGrossTotal()
+    {
+        return $this->getItemTotal();
+    }
+
+    public function addItem(ItemContract $item, $quantity = 1)
     {
         $item->setQuantity($quantity);
         $this->items->put($item->getId(), $item);
-        $this->updateStorage('items', $this->items);
+        $this->save();
 
         return $this;
     }
 
-    /**
-     * remove.
-     *
-     * @method remove
-     *
-     * @param \Recca0120\Cart\Contracts\Item|int   $item
-     *
-     * @return static
-     */
-    public function remove($item)
+    public function removeItem($item)
     {
-        $id = ($item instanceof Item) ? $item->getId() : $item;
-        $this->items->forget([$id]);
-        $this->updateStorage('items', $this->items);
+        $itemId = ($item instanceof ItemContract) ? $item->getId() : $item;
+        $this->items->forget($itemId);
+        $this->save();
 
         return $this;
     }
 
-    /**
-     * items.
-     *
-     * @method items
-     *
-     * @return int
-     */
-    public function items()
+    public function getItems()
     {
         return $this->items;
     }
 
-    /**
-     * total.
-     *
-     * @method total
-     *
-     * @return int
-     */
-    public function total()
+    public function getItemCount()
     {
-        return $this->items->reduce(function ($total, $item) {
-            return $total + ($item->getPrice() * $item->getQuantity());
-        }, 0);
+        return $this->getItems()->count();
     }
 
-    /**
-     * instance.
-     *
-     * @method instance
-     *
-     * @param string $id
-     * @param \Symfony\Component\HttpFoundation\Session\SessionInterface $storage
-     *
-     * @return static
-     */
-    public static function instance($id = null, SessionInterface $storage = null)
+    public function getItemTotal()
     {
-        $id = is_null($id) === true ? static::class : $id;
-
-        return isset(self::$instance[$id]) === false ? new static($id, $storage) : self::$instance[$id];
+        return $this->items->sum(function ($item) {
+            return $item->getPrice() * $item->getQuantity();
+        });
     }
 
-    /**
-     * Get the collection of items as a plain array.
-     *
-     * @return array
-     */
-    public function toArray()
+    public function addCoupon(CouponContract $coupon)
     {
-        return $this->items->toArray();
+        $this->coupons->push($coupon);
+        $this->save();
+
+        return $this;
     }
 
-    /**
-     * Convert the object into something JSON serializable.
-     *
-     * @return array
-     */
-    public function jsonSerialize()
+    public function save()
     {
-        return $this->items->jsonSerialize();
+        $this->getSession()->set($this->getId(), [
+            'items'     => $this->items,
+            'coupons'   => $this->coupons,
+        ]);
     }
 
-    /**
-     * Get the collection of items as JSON.
-     *
-     * @param  int  $options
-     * @return string
-     */
-    public function toJson($options = 0)
+    public function clear()
     {
-        return json_encode($this->jsonSerialize(), $options);
+        $this->items = new Collection();
+        $this->coupons = new Collection();
+        $this->save();
     }
 
-    /**
-     * Get an iterator for the items.
-     *
-     * @return \ArrayIterator
-     */
-    public function getIterator()
+    protected function getSession()
     {
-        return $this->items->getIterator();
+        return is_null(self::$session) === false ?
+            self::$session :
+            static::setSession(new Session(new PhpBridgeSessionStorage()));
     }
 
-    /**
-     * Get a CachingIterator instance.
-     *
-     * @param  int  $flags
-     * @return \CachingIterator
-     */
-    public function getCachingIterator($flags = CachingIterator::CALL_TOSTRING)
+    public static function setSession(SessionInterface $storage)
     {
-        return $this->items->getCachingIterator($flags);
+        self::$session = $storage;
+        static::startSession(self::$session);
+
+        return self::$session;
     }
 
-    /**
-     * Count the number of items in the collection.
-     *
-     * @return int
-     */
-    public function count()
+    protected static function startSession()
     {
-        return $this->items->count();
+        if (self::$session->isStarted() === false) {
+            self::$session->start();
+        }
+
+        register_shutdown_function(function () {
+            if (self::$session->isStarted() === true) {
+                self::$session->save();
+            }
+        });
     }
 
-    /**
-     * Determine if an item exists at an offset.
-     *
-     * @param  mixed  $key
-     * @return bool
-     */
-    public function offsetExists($key)
+    public static function getHash($key)
     {
-        return $this->items->offsetExists($key);
-    }
-
-    /**
-     * Get an item at a given offset.
-     *
-     * @param  mixed  $key
-     * @return mixed
-     */
-    public function offsetGet($key)
-    {
-        return $this->items->offsetGet($key);
-    }
-
-    /**
-     * Set the item at a given offset.
-     *
-     * @param  mixed  $key
-     * @param  mixed  $value
-     * @return void
-     */
-    public function offsetSet($key, $value)
-    {
-        return $this->items->offsetSet($key, $value);
-    }
-
-    /**
-     * Unset the item at a given offset.
-     *
-     * @param  string  $key
-     * @return void
-     */
-    public function offsetUnset($key)
-    {
-        $this->items->offsetUnset($key);
-    }
-
-    /**
-     * Convert the collection to its string representation.
-     *
-     * @return string
-     */
-    public function __toString()
-    {
-        return $this->items->toJson();
+        return hash('sha256', $key);
     }
 }

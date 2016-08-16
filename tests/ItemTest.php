@@ -51,6 +51,7 @@ class ItemTest extends PHPUnit_Framework_TestCase
         $this->assertSame($price, $item->getPrice());
         $this->assertSame($attributes, $item->toArray());
         $this->assertSame(json_encode($attributes), $item->toJson());
+        $this->assertSame($price * $quantity, $item->getTotal());
 
         $this->assertTrue(isset($item['id']));
         unset($item['id']);
