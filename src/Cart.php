@@ -101,21 +101,6 @@ class Cart implements CartContract
         }, 0);
     }
 
-    public function getDiscounts()
-    {
-        return $this->coupons->map(function ($coupon) {
-            $discount = $coupon->discount($this);
-            $description = $coupon->getDescription();
-
-            return compact('discount', 'description');
-        });
-    }
-
-    public function getGrossTotal()
-    {
-        return $this->getItemTotal();
-    }
-
     public function addItem(ItemContract $item, $quantity = 1)
     {
         $item->setQuantity($quantity);
@@ -144,10 +129,25 @@ class Cart implements CartContract
         return $this->getItems()->count();
     }
 
+    public function getGrossTotal()
+    {
+        return $this->getItemTotal();
+    }
+
     public function getItemTotal()
     {
         return $this->items->sum(function ($item) {
             return $item->getPrice() * $item->getQuantity();
+        });
+    }
+
+    public function getDiscounts()
+    {
+        return $this->coupons->map(function ($coupon) {
+            $discount = $coupon->discount($this);
+            $description = $coupon->getDescription();
+
+            return compact('discount', 'description');
         });
     }
 
@@ -206,5 +206,10 @@ class Cart implements CartContract
         $name = is_null($name) === true ? static::class : $name;
 
         return (isset(self::$instance[$name]) === true) ? self::$instance[$name] : new static($name, $session);
+    }
+
+    public static function driver($driver = null)
+    {
+        return static::instance($driver);
     }
 }
