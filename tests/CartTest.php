@@ -3,8 +3,9 @@
 use Faker\Factory as FakerFactory;
 use Mockery as m;
 use Recca0120\Cart\Cart;
-use Recca0120\Cart\Coupons\FreeShippingCoupon;
+use Recca0120\Cart\Coupons\FreeShipping;
 use Recca0120\Cart\Item;
+use Recca0120\Cart\Util;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class CartTest extends PHPUnit_Framework_TestCase
@@ -25,7 +26,7 @@ class CartTest extends PHPUnit_Framework_TestCase
         $faker = FakerFactory::create();
         $session = m::mock(SessionInterface::class);
         $id = uniqid();
-        $hash = Cart::getHash($id);
+        $hash = Util::hash($id);
         $items = collect();
 
         /*
@@ -59,12 +60,12 @@ class CartTest extends PHPUnit_Framework_TestCase
             return $prev + $item->getTotal();
         }, 0);
 
-        $this->assertSame($hash, $cart->getId());
+        $this->assertSame($hash, $cart->getName());
         $this->assertSame($items->toArray(), $cart->items()->toArray());
         $this->assertSame($itemLength, $cart->count());
         $this->assertSame($itemTotal, $cart->total());
 
-        $coupon = new FreeShippingCoupon(200, 5000000000);
+        $coupon = new FreeShipping(200, 5000000000);
         $cart->addCoupon($coupon);
         $this->assertSame($itemTotal + 200, $cart->total());
 

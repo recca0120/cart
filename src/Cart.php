@@ -15,13 +15,11 @@ class Cart implements CartContract
 {
     protected static $session = null;
 
-    protected $instance = [];
+    protected static $instance = [];
 
     protected $items;
 
     protected $coupons;
-
-    protected $discounts;
 
     /**
      * Create a new collection.
@@ -29,43 +27,44 @@ class Cart implements CartContract
      * @param  mixed  $items
      * @return void
      */
-    public function __construct($id = null, SessionInterface $session = null)
+    public function __construct($name = null, SessionInterface $session = null)
     {
-        $this->setId($id);
+        $this->setName($name);
+        self::$instance[$this->getName()] = $this;
         if (is_null($session) === false) {
             self::setSession($session);
         }
 
-        $data = $this->getSession()->get($this->getId());
+        $data = $this->getSession()->get($this->getName());
         $this->items = Arr::get($data, 'items', new Collection());
         $this->coupons = Arr::get($data, 'coupons', new Collection());
     }
 
     /**
-     * getId.
+     * getName.
      *
-     * @method getId
+     * @method getName
      *
      * @return string
      */
-    public function getId()
+    public function getName()
     {
-        return $this->id;
+        return $this->name;
     }
 
     /**
-     * setId.
+     * setName.
      *
-     * @method setId
+     * @method setName
      *
-     * @param string $id
+     * @param string $name
      *
      * @return static
      */
-    public function setId($id)
+    public function setName($name)
     {
-        $id = is_null($id) === true ? static::class : $id;
-        $this->id = static::getHash($id);
+        $name = is_null($name) === true ? static::class : $name;
+        $this->name = Util::hash($name);
 
         return $this;
     }
@@ -154,7 +153,7 @@ class Cart implements CartContract
 
     public function addCoupon(CouponContract $coupon)
     {
-        $this->coupons->push($coupon);
+        $this->coupons->put($coupon->getName(), $coupon);
         $this->save();
 
         return $this;
@@ -162,7 +161,7 @@ class Cart implements CartContract
 
     public function save()
     {
-        $this->getSession()->set($this->getId(), [
+        $this->getSession()->set($this->getName(), [
             'items'     => $this->items,
             'coupons'   => $this->coupons,
         ]);
@@ -194,17 +193,18 @@ class Cart implements CartContract
     {
         if (self::$session->isStarted() === false) {
             self::$session->start();
+            register_shutdown_function(function () {
+                if (self::$session->isStarted() === true) {
+                    self::$session->save();
+                }
+            });
         }
-
-        register_shutdown_function(function () {
-            if (self::$session->isStarted() === true) {
-                self::$session->save();
-            }
-        });
     }
 
-    public static function getHash($key)
+    public static function instance($name = null, SessionInterface $session = null)
     {
-        return hash('sha256', $key);
+        $name = is_null($name) === true ? static::class : $name;
+
+        return (isset(self::$instance[$name]) === true) ? self::$instance[$name] : new static($name, $session);
     }
 }

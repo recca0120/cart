@@ -3,9 +3,9 @@
 namespace Recca0120\Cart\Coupons;
 
 use Recca0120\Cart\Contracts\Cart as CartContract;
-use Recca0120\Cart\Contracts\Coupon as CouponContract;
+use Recca0120\Cart\Util;
 
-class FreeShippingCoupon implements CouponContract
+class FreeShipping extends Coupon
 {
     protected $shippingFee;
 
@@ -15,18 +15,15 @@ class FreeShippingCoupon implements CouponContract
     {
         $this->shippingFee = $shippingFee;
         $this->freeShipping = $freeShipping;
-    }
-
-    public function getDescription()
-    {
-        return sprintf('滿 %s 免運', $this->freeShipping);
+        $this->setCode(static::class);
+        $this->setName(Util::hash(static::class));
     }
 
     public function discount(CartContract $cart)
     {
         $grossTotal = $cart->getGrossTotal();
 
-        if ($grossTotal >= $this->freeShipping) {
+        if ($grossTotal >= $this->freeShipping || $grossTotal == 0) {
             return 0;
         }
 

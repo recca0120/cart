@@ -2,9 +2,9 @@
 
 use Mockery as m;
 use Recca0120\Cart\Contracts\Cart as CartContract;
-use Recca0120\Cart\Coupons\FreeShippingCoupon;
+use Recca0120\Cart\Coupons\FreeShipping;
 
-class FreeShippingCouponTest extends PHPUnit_Framework_TestCase
+class FreeShippingTest extends PHPUnit_Framework_TestCase
 {
     public function tearDown()
     {
@@ -22,7 +22,7 @@ class FreeShippingCouponTest extends PHPUnit_Framework_TestCase
         $shippingFee = 100;
         $freeShipping = 500;
         $grossTotal = 100;
-        $coupon = new FreeShippingCoupon($shippingFee, $freeShipping);
+        $coupon = new FreeShipping($shippingFee, $freeShipping);
         $cart = m::mock(CartContract::class);
 
         /*
@@ -59,7 +59,7 @@ class FreeShippingCouponTest extends PHPUnit_Framework_TestCase
         $shippingFee = 100;
         $freeShipping = 500;
         $grossTotal = 1000;
-        $coupon = new FreeShippingCoupon($shippingFee, $freeShipping);
+        $coupon = new FreeShipping($shippingFee, $freeShipping);
         $cart = m::mock(CartContract::class);
 
         /*
