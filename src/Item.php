@@ -12,10 +12,10 @@ class Item extends Fluent implements ItemContract
      *
      * @method __construct
      *
-     * @param  int|string   $sku
-     * @param  string       $name
-     * @param  int          $quantity
-     * @param  float        $price
+     * @param int|string $sku
+     * @param string     $name
+     * @param int        $quantity
+     * @param float      $price
      */
     public function __construct($sku = null, $name = null, $price = 0.00, $options = [], $quantity = 0)
     {

@@ -7,7 +7,7 @@ use Illuminate\Support\Fluent;
 use Recca0120\Cart\Contracts\Cart as CartContract;
 use Recca0120\Cart\Contracts\Coupon as CouponContract;
 
-class Coupon extends Fluent  implements CouponContract
+class Coupon extends Fluent implements CouponContract
 {
     public function __construct($code, $description, Closure $handler = null)
     {

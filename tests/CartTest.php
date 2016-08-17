@@ -23,38 +23,7 @@ class CartTest extends PHPUnit_Framework_TestCase
         |------------------------------------------------------------
         */
 
-        $instance = Cart::instance();
-        $instance2 = Cart::driver('foo');
-
-        /*
-        |------------------------------------------------------------
-        | Expectation
-        |------------------------------------------------------------
-        */
-
-        /*
-        |------------------------------------------------------------
-        | Assertion
-        |------------------------------------------------------------
-        */
-
-        $this->assertSame($instance, Cart::instance());
-        $this->assertSame($instance2, Cart::instance('foo'));
-    }
-
-    public function test_cart()
-    {
-        /*
-        |------------------------------------------------------------
-        | Set
-        |------------------------------------------------------------
-        */
-
-        $name = uniqid();
         $session = m::mock(SessionInterface::class);
-        $itemLength = 10;
-        $faker = FakerFactory::create();
-        $items = collect();
 
         /*
         |------------------------------------------------------------
@@ -74,46 +43,184 @@ class CartTest extends PHPUnit_Framework_TestCase
         |------------------------------------------------------------
         */
 
-        $storage = new Storage($session);
-        $cart = new Cart($name, $storage);
+        $instance = Cart::instance();
+        $this->assertSame($instance, Cart::instance());
 
-        $cart->clear();
-        $this->assertSame([], $cart->items()->toArray());
-        $this->assertSame([], $cart->coupons()->toArray());
+        $instance = Cart::driver('foo', new Storage($session));
+        $this->assertSame($instance, Cart::instance('foo'));
+    }
 
-        for ($i = 1; $i <= $itemLength; $i++) {
-            $items->put($i, new Item($i, $faker->name, $faker->numberBetween(100, 1000)));
-        }
+    public function test_add_item()
+    {
+        /*
+        |------------------------------------------------------------
+        | Set
+        |------------------------------------------------------------
+        */
 
-        $total = $items->reduce(function ($prev, $item) use ($faker, $cart) {
-            $quantity = $faker->numberBetween(1, 10);
-            $cart->add($item, $quantity);
-
-            return $prev + $item->total();
-        }, 0);
-
-        $this->assertSame($name, $cart->getName());
-        $this->assertSame($total, $cart->items()->total());
-
-        $this->assertSame($cart->items()->count(), $cart->count());
-        $this->assertSame($cart->items()->total(), $cart->total());
-
-        $cart->remove(1);
-        $this->assertSame($cart->items()->total(), $cart->total());
-        $this->assertSame($itemLength - 1, $cart->count());
-
-        $coupon = new Coupon('freeShipping', '運2000免運費', function ($cart) {
-            return ($cart->items()->total() > 2000) ? 120 : 0;
+        $name = uniqid();
+        $cart = new Cart($name);
+        $items = $this->generateItems();
+        $items->each(function ($item) use ($cart) {
+            $cart->add($item, $item->getQuantity());
         });
 
-        $total = $cart->total();
-        $cart->coupons()->add($coupon);
-        $this->assertSame($total + 120, $cart->total());
-        $this->assertSame(120, $coupon->getDiscount());
-        $this->assertSame('freeShipping', $coupon->getCode());
-        $this->assertSame('運2000免運費', $coupon->getDescription());
+        /*
+        |------------------------------------------------------------
+        | Expectation
+        |------------------------------------------------------------
+        */
 
-        $cart->coupons()->add(new Coupon('n', 'n'));
-        $cart->total();
+        $total = $items->sum(function ($item) {
+            return $item->total();
+        });
+
+        /*
+        |------------------------------------------------------------
+        | Assertion
+        |------------------------------------------------------------
+        */
+
+        $this->assertSame($name, $cart->getName());
+
+        $this->assertSame($items->count(), $cart->count());
+        $this->assertSame($items->count(), $cart->items()->count());
+
+        $this->assertSame($total, $cart->total());
+        $this->assertSame($total, $cart->items()->total());
+    }
+
+    public function test_remove_item()
+    {
+        /*
+        |------------------------------------------------------------
+        | Set
+        |------------------------------------------------------------
+        */
+
+        $cart = new Cart();
+        $items = $this->generateItems();
+        $items->each(function ($item) use ($cart) {
+            $cart->add($item, $item->getQuantity());
+        });
+
+        /*
+        |------------------------------------------------------------
+        | Expectation
+        |------------------------------------------------------------
+        */
+
+        $count = $items->count();
+
+        /*
+        |------------------------------------------------------------
+        | Assertion
+        |------------------------------------------------------------
+        */
+
+        $cart->remove(1);
+        $this->assertSame($count -= 1, $cart->count());
+        $this->assertSame($count, $cart->items()->count());
+
+        $cart->remove($items->last());
+        $this->assertSame($count -= 1, $cart->count());
+        $this->assertSame($count, $cart->items()->count());
+    }
+
+    public function test_clear_item()
+    {
+        /*
+        |------------------------------------------------------------
+        | Set
+        |------------------------------------------------------------
+        */
+
+        $cart = new Cart();
+        $items = $this->generateItems();
+        $items->each(function ($item) use ($cart) {
+            $cart->add($item, $item->getQuantity());
+        });
+
+        /*
+        |------------------------------------------------------------
+        | Expectation
+        |------------------------------------------------------------
+        */
+
+        /*
+        |------------------------------------------------------------
+        | Assertion
+        |------------------------------------------------------------
+        */
+
+        $cart->clear();
+
+        $this->assertSame(0, $cart->count());
+        $this->assertSame(0, $cart->items()->count());
+        $this->assertSame(0, $cart->coupons()->count());
+    }
+
+    public function test_add_coupon()
+    {
+        /*
+        |------------------------------------------------------------
+        | Set
+        |------------------------------------------------------------
+        */
+
+        $cart = new Cart();
+        $items = $this->generateItems();
+        $items->each(function ($item) use ($cart) {
+            $cart->add($item, $item->getQuantity());
+        });
+        $code = 'freeshippin';
+        $description = '滿1000免運費';
+        $fee = -120;
+        $coupon = new Coupon($code, $description, function ($cart) use ($fee) {
+            return ($cart->grossTotal() < 1000) ? $fee : 0;
+        });
+
+        /*
+        |------------------------------------------------------------
+        | Expectation
+        |------------------------------------------------------------
+        */
+
+        $grossTotal = $items->sum(function ($item) {
+            return $item->total();
+        });
+
+        $discount = ($cart->grossTotal() < 1000) ? $fee : 0;
+        $total = $grossTotal - $discount;
+        /*
+        |------------------------------------------------------------
+        | Assertion
+        |------------------------------------------------------------
+        */
+
+        $cart->addCoupon($coupon);
+        $this->assertSame($grossTotal, $cart->grossTotal());
+        $this->assertSame($total, $cart->total());
+
+        $this->assertSame($code, $coupon->getCode());
+        $this->assertSame($description, $coupon->getDescription());
+        $this->assertSame($discount, $coupon->getDiscount());
+        $this->assertSame(0, $coupon->defaultHandler($cart));
+
+        $cart->removeCoupon($coupon->getCode());
+        $this->assertSame($grossTotal, $cart->grossTotal());
+        $this->assertSame($grossTotal, $cart->total());
+    }
+
+    protected function generateItems()
+    {
+        $faker = FakerFactory::create();
+        $length = 10;
+        $items = collect();
+        for ($i = 1; $i <= $length; $i++) {
+            $items->put($i, new Item($i, $faker->name, $faker->numberBetween(1, 10), [], $faker->numberBetween(1, 10)));
+        }
+
+        return $items;
     }
 }

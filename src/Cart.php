@@ -4,6 +4,7 @@ namespace Recca0120\Cart;
 
 use Illuminate\Support\Arr;
 use Recca0120\Cart\Contracts\Cart as CartContract;
+use Recca0120\Cart\Contracts\Coupon as CouponContract;
 use Recca0120\Cart\Contracts\Item as ItemContract;
 use Recca0120\Cart\Contracts\Storage as StorageContract;
 
@@ -76,16 +77,35 @@ class Cart implements CartContract
         return $this->items()->count();
     }
 
+    public function grossTotal()
+    {
+        return $this->items()->total();
+    }
+
     public function total()
     {
-        return $this->coupons->discount($this)->reduce(function ($prev, $next) {
-            return $prev + $next;
-        }, $this->items()->total());
+        return $this->grossTotal() - $this->coupons->discount($this)->sum();
     }
 
     public function coupons()
     {
         return $this->coupons;
+    }
+
+    public function addCoupon(CouponContract $coupon)
+    {
+        $this->coupons()->add($coupon);
+        $this->storage->set($this);
+
+        return $this;
+    }
+
+    public function removeCoupon($coupon)
+    {
+        $this->coupons()->remove($coupon);
+        $this->storage->set($this);
+
+        return $this;
     }
 
     public static function instance($name = 'default', StorageContract $storage = null)
