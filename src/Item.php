@@ -2,6 +2,7 @@
 
 namespace Recca0120\Cart;
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Fluent;
 use Recca0120\Cart\Contracts\Item as ItemContract;
 
@@ -174,9 +175,9 @@ class Item extends Fluent implements ItemContract
      *
      * @return mixed
      */
-    public function getOption($key)
+    public function getOption($key, $default = null)
     {
-        return $this->options[$key];
+        return Arr::get($this->options, $key, $default);
     }
 
     /**
