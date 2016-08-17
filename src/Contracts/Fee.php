@@ -4,7 +4,7 @@ namespace Recca0120\Cart\Contracts;
 
 use Closure;
 
-interface Coupon
+interface Fee
 {
     public function __construct($code, $description, Closure $handler = null);
 
@@ -15,10 +15,6 @@ interface Coupon
     public function getDescription();
 
     public function setDescription($description);
-
-    public function getDiscount();
-
-    public function setDiscount($discount);
 
     public function defaultHandler(Cart $cart);
 

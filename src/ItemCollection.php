@@ -4,8 +4,9 @@ namespace Recca0120\Cart;
 
 use Illuminate\Support\Collection;
 use Recca0120\Cart\Contracts\Item as ItemContract;
+use Recca0120\Cart\Contracts\ItemCollection as ItemCollectionContract;
 
-class ItemCollection extends Collection
+class ItemCollection extends Collection implements ItemCollectionContract
 {
     public function add(ItemContract $item, $quantity = 0)
     {

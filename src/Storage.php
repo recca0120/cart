@@ -2,6 +2,7 @@
 
 namespace Recca0120\Cart;
 
+use Recca0120\Cart\Contracts\Cart as CartContract;
 use Recca0120\Cart\Contracts\Storage as StorageContract;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -40,15 +41,16 @@ class Storage implements StorageContract
         return $session;
     }
 
-    public function set(Cart $cart)
+    public function set(CartContract $cart)
     {
         $this->session->set($this->hash($cart->getName()), [
             'items'   => $cart->items(),
             'coupons' => $cart->coupons(),
+            'fees'    => $cart->fees(),
         ]);
     }
 
-    public function get(Cart $cart)
+    public function get(CartContract $cart)
     {
         return $this->session->get($this->hash($cart->getName()));
     }

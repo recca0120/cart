@@ -5,12 +5,12 @@ namespace Recca0120\Cart;
 use Illuminate\Support\Collection;
 use Recca0120\Cart\Contracts\Cart as CartContract;
 use Recca0120\Cart\Contracts\Coupon as CouponContract;
+use Recca0120\Cart\Contracts\CouponCollection as CouponCollectionContract;
 
-class CouponCollection extends Collection
+class CouponCollection extends Collection implements CouponCollectionContract
 {
-    public function add(CouponContract $coupon, $quantity = 0)
+    public function add(CouponContract $coupon)
     {
-        $coupon->setQuantity($quantity);
         $this->put($coupon->getCode(), $coupon);
 
         return $this;
@@ -24,7 +24,7 @@ class CouponCollection extends Collection
         return $this;
     }
 
-    public function discount(CartContract $cart)
+    public function apply(CartContract $cart)
     {
         return $this->map(function ($coupon) use ($cart) {
             $discount = $coupon->apply($cart);
