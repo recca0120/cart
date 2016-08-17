@@ -51,7 +51,6 @@ class CartTest extends PHPUnit_Framework_TestCase
 
         $name = uniqid();
         $session = m::mock(SessionInterface::class);
-        $storage = new Storage();
         $itemLength = 10;
         $faker = FakerFactory::create();
         $items = collect();
@@ -74,7 +73,8 @@ class CartTest extends PHPUnit_Framework_TestCase
         |------------------------------------------------------------
         */
 
-        $cart = new Cart($name, $session);
+        $storage = new Storage($session);
+        $cart = new Cart($name, $storage);
 
         $cart->clear();
         $this->assertSame([], $cart->items()->toArray());

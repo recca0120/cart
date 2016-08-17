@@ -12,15 +12,15 @@ class Item extends Fluent implements ItemContract
      *
      * @method __construct
      *
-     * @param  int|string   $id
+     * @param  int|string   $sku
      * @param  string       $name
      * @param  int          $quantity
      * @param  float        $price
      */
-    public function __construct($id = null, $name = null, $price = 0.00, $options = [], $quantity = 0)
+    public function __construct($sku = null, $name = null, $price = 0.00, $options = [], $quantity = 0)
     {
         $this
-            ->setId($id)
+            ->setSku($sku)
             ->setName($name)
             ->setPrice($price)
             ->setQuantity($quantity)
@@ -28,29 +28,29 @@ class Item extends Fluent implements ItemContract
     }
 
     /**
-     * getId.
+     * getSku.
      *
-     * @method getId
+     * @method getSku
      *
      * @return int|string
      */
-    public function getId()
+    public function getSku()
     {
-        return $this->id;
+        return $this->sku;
     }
 
     /**
-     * setId.
+     * setSku.
      *
-     * @method setId
+     * @method setSku
      *
-     * @param int|string $id
+     * @param int|string $sku
      *
      * @return static
      */
-    public function setId($id)
+    public function setSku($sku)
     {
-        $this->id = $id;
+        $this->sku = $sku;
 
         return $this;
     }

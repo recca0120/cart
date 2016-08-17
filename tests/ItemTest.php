@@ -18,13 +18,13 @@ class ItemTest extends PHPUnit_Framework_TestCase
         |------------------------------------------------------------
         */
 
-        $id = 1;
+        $sku = 1;
         $name = 'foo';
         $price = 100.00;
         $quantity = 0;
         $options = [];
 
-        $attributes = compact('id', 'name', 'price', 'quantity', 'options');
+        $attributes = compact('sku', 'name', 'price', 'quantity', 'options');
 
         /*
         |------------------------------------------------------------
@@ -32,7 +32,7 @@ class ItemTest extends PHPUnit_Framework_TestCase
         |------------------------------------------------------------
         */
 
-        $item = new Item($id, $name, $price);
+        $item = new Item($sku, $name, $price);
 
         /*
         |------------------------------------------------------------
@@ -40,24 +40,24 @@ class ItemTest extends PHPUnit_Framework_TestCase
         |------------------------------------------------------------
         */
 
-        $this->assertSame($id, $item['id']);
+        $this->assertSame($sku, $item['sku']);
         $this->assertSame($name, $item['name']);
         $this->assertSame($price, $item['price']);
-        $this->assertSame($id, $item->id);
+        $this->assertSame($sku, $item->sku);
         $this->assertSame($name, $item->name);
         $this->assertSame($price, $item->price);
-        $this->assertSame($id, $item->getId());
+        $this->assertSame($sku, $item->getSku());
         $this->assertSame($name, $item->getName());
         $this->assertSame($price, $item->getPrice());
         $this->assertSame($attributes, $item->toArray());
         $this->assertSame(json_encode($attributes), $item->toJson());
         $this->assertSame($price * $quantity, $item->total());
 
-        $this->assertTrue(isset($item['id']));
-        unset($item['id']);
-        $this->assertFalse(isset($item['id']));
-        $item['id'] = $id;
-        $this->assertTrue(isset($item['id']));
+        $this->assertTrue(isset($item['sku']));
+        unset($item['sku']);
+        $this->assertFalse(isset($item['sku']));
+        $item['sku'] = $sku;
+        $this->assertTrue(isset($item['sku']));
     }
 
     public function test_set_options()
@@ -68,13 +68,13 @@ class ItemTest extends PHPUnit_Framework_TestCase
         |------------------------------------------------------------
         */
 
-        $id = 1;
+        $sku = 1;
         $name = 'foo';
         $price = 100.00;
         $quantity = 0;
         $options = [];
 
-        $attributes = compact('id', 'name', 'price', 'quantity', 'options');
+        $attributes = compact('sku', 'name', 'price', 'quantity', 'options');
 
         /*
         |------------------------------------------------------------
@@ -82,7 +82,7 @@ class ItemTest extends PHPUnit_Framework_TestCase
         |------------------------------------------------------------
         */
 
-        $item = new Item($id, $name, $price);
+        $item = new Item($sku, $name, $price);
 
         /*
         |------------------------------------------------------------

@@ -5,7 +5,7 @@ namespace Recca0120\Cart;
 use Illuminate\Support\Arr;
 use Recca0120\Cart\Contracts\Cart as CartContract;
 use Recca0120\Cart\Contracts\Item as ItemContract;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Recca0120\Cart\Contracts\Storage as StorageContract;
 
 class Cart implements CartContract
 {
@@ -19,11 +19,11 @@ class Cart implements CartContract
 
     protected $coupons;
 
-    public function __construct($name = 'default', SessionInterface $session = null)
+    public function __construct($name = 'default', StorageContract $storage = null)
     {
         $this->setName($name);
         self::$instance[$this->getName()] = $this;
-        $this->storage = new Storage($session);
+        $this->storage = (is_null($storage) === false) ? $storage : new Storage();
         $data = $this->storage->get($this);
         $this->items = Arr::get($data, 'items', new ItemCollection());
         $this->coupons = Arr::get($data, 'coupons', new CouponCollection());
@@ -86,13 +86,13 @@ class Cart implements CartContract
         return $this->coupons;
     }
 
-    public static function instance($name = 'default', SessionInterface $session = null)
+    public static function instance($name = 'default', StorageContract $storage = null)
     {
-        return (array_key_exists($name, static::$instance) === true) ? self::$instance[$name] : new static($name, $session);
+        return (array_key_exists($name, static::$instance) === true) ? self::$instance[$name] : new static($name, $storage);
     }
 
-    public static function driver($name = 'default', SessionInterface $session = null)
+    public static function driver($name = 'default', StorageContract $storage = null)
     {
-        return static::instance($name, $session);
+        return static::instance($name, $storage);
     }
 }

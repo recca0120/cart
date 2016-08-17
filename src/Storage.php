@@ -2,11 +2,12 @@
 
 namespace Recca0120\Cart;
 
+use Recca0120\Cart\Contracts\Storage as StorageContract;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpFoundation\Session\Storage\PhpBridgeSessionStorage;
 
-class Storage
+class Storage implements StorageContract
 {
     protected static $sessionInstance = null;
 
@@ -41,7 +42,7 @@ class Storage
 
     public function set(Cart $cart)
     {
-        $this->session->set(Util::hash($cart->getName()), [
+        $this->session->set($this->hash($cart->getName()), [
             'items'   => $cart->items(),
             'coupons' => $cart->coupons(),
         ]);
@@ -49,7 +50,12 @@ class Storage
 
     public function get(Cart $cart)
     {
-        return $this->session->get(Util::hash($cart->getName()));
+        return $this->session->get($this->hash($cart->getName()));
+    }
+
+    protected function hash($key)
+    {
+        return hash('sha256', $key);
     }
 
     public static function setSession(SessionInterface $session)

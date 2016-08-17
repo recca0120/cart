@@ -10,15 +10,15 @@ class ItemCollection extends Collection
     public function add(ItemContract $item, $quantity = 0)
     {
         $item->setQuantity($quantity);
-        $this->put($item->getId(), $item);
+        $this->put($item->getSku(), $item);
 
         return $this;
     }
 
     public function remove($item)
     {
-        $itemId = ($item instanceof ItemContract) ? $item->getId() : $item;
-        $this->forget($itemId);
+        $sku = ($item instanceof ItemContract) ? $item->getSku() : $item;
+        $this->forget($sku);
 
         return $this;
     }

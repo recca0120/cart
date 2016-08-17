@@ -10,24 +10,24 @@ use JsonSerializable;
 interface Item extends ArrayAccess, Arrayable, Jsonable, JsonSerializable
 {
     /**
-     * getId.
+     * getSku.
      *
-     * @method getId
+     * @method getSku
      *
      * @return int|string
      */
-    public function getId();
+    public function getSku();
 
     /**
-     * setId.
+     * setSku.
      *
-     * @method setId
+     * @method setSku
      *
-     * @param int|string $id
+     * @param int|string $sku
      *
      * @return static
      */
-    public function setId($id);
+    public function setSku($sku);
 
     /**
      * getName.
