@@ -3,6 +3,7 @@
 use Faker\Factory as FakerFactory;
 use Mockery as m;
 use Recca0120\Cart\Cart;
+use Recca0120\Cart\Coupon;
 use Recca0120\Cart\Item;
 use Recca0120\Cart\Storage;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -100,5 +101,13 @@ class CartTest extends PHPUnit_Framework_TestCase
         $cart->remove(1);
         $this->assertSame($cart->items()->total(), $cart->total());
         $this->assertSame($itemLength - 1, $cart->count());
+
+        $coupon = new Coupon('freeShipping', '運2000免運費', function ($cart) {
+            return ($cart->items()->total() > 2000) ? 120 : 0;
+        });
+
+        $total = $cart->total();
+        $cart->coupons()->add($coupon);
+        $this->assertSame($total + 120, $cart->total());
     }
 }

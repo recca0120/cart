@@ -78,7 +78,9 @@ class Cart implements CartContract
 
     public function total()
     {
-        return $this->items()->total();
+        return $this->coupons->discount($this)->reduce(function ($prev, $next) {
+            return $prev + $next;
+        }, $this->items()->total());
     }
 
     public function coupons()
