@@ -139,11 +139,6 @@ class Item extends Fluent implements ItemContract
         return $this;
     }
 
-    public function getTotal()
-    {
-        return $this->getQuantity() * $this->getPrice();
-    }
-
     /**
      * getOptions.
      *
@@ -207,5 +202,17 @@ class Item extends Fluent implements ItemContract
         $this->attributes['options'][$key] = $value;
 
         return $this;
+    }
+
+    /**
+     * total.
+     *
+     * @method total
+     *
+     * @return float
+     */
+    public function total()
+    {
+        return $this->getQuantity() * $this->getPrice();
     }
 }

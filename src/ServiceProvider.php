@@ -3,6 +3,7 @@
 namespace Recca0120\Cart;
 
 use Illuminate\Support\ServiceProvider as BaseServiceProvider;
+use Recca0120\Cart\Contracts\Cart as CartContract;
 
 class ServiceProvider extends BaseServiceProvider
 {
@@ -13,8 +14,6 @@ class ServiceProvider extends BaseServiceProvider
      */
     public function register()
     {
-        $this->app->singleton(Cart::class, function ($app) {
-            return Cart::driver();
-        });
+        $this->app->singleton(CartContract::class, Cart::class);
     }
 }

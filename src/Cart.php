@@ -3,213 +3,96 @@
 namespace Recca0120\Cart;
 
 use Illuminate\Support\Arr;
-use Illuminate\Support\Collection;
 use Recca0120\Cart\Contracts\Cart as CartContract;
-use Recca0120\Cart\Contracts\Coupon as CouponContract;
 use Recca0120\Cart\Contracts\Item as ItemContract;
-use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
-use Symfony\Component\HttpFoundation\Session\Storage\PhpBridgeSessionStorage;
 
 class Cart implements CartContract
 {
-    protected static $session = null;
-
     protected static $instance = [];
+
+    protected $name = 'default';
+
+    protected $storage;
 
     protected $items;
 
     protected $coupons;
 
-    /**
-     * Create a new collection.
-     *
-     * @param  mixed  $items
-     * @return void
-     */
-    public function __construct($name = null, SessionInterface $session = null)
+    public function __construct($name = 'default', SessionInterface $session = null)
     {
         $this->setName($name);
         self::$instance[$this->getName()] = $this;
-        if (is_null($session) === false) {
-            self::setSession($session);
-        }
-
-        $data = $this->getSession()->get($this->getName());
-        $this->items = Arr::get($data, 'items', new Collection());
-        $this->coupons = Arr::get($data, 'coupons', new Collection());
+        $this->storage = new Storage($session);
+        $data = $this->storage->get($this);
+        $this->items = Arr::get($data, 'items', new ItemCollection());
+        $this->coupons = Arr::get($data, 'coupons', new CouponCollection());
     }
 
-    /**
-     * getName.
-     *
-     * @method getName
-     *
-     * @return string
-     */
+    public function setName($name = null)
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
     public function getName()
     {
         return $this->name;
     }
 
-    /**
-     * setName.
-     *
-     * @method setName
-     *
-     * @param string $name
-     *
-     * @return static
-     */
-    public function setName($name)
+    public function add(ItemContract $item, $quantity = 0)
     {
-        $name = is_null($name) === true ? static::class : $name;
-        $this->name = Util::hash($name);
+        $this->items->add($item, $quantity);
+        $this->storage->set($this);
 
         return $this;
-    }
-
-    public function add(ItemContract $item, $quantity = 1)
-    {
-        return $this->addItem($item, $quantity);
     }
 
     public function remove($item)
     {
-        return $this->removeItem($item);
-    }
-
-    public function items()
-    {
-        return $this->getItems();
-    }
-
-    public function count()
-    {
-        return $this->getItemCount();
-    }
-
-    public function grossTotal()
-    {
-        return $this->getGrossTotal();
-    }
-
-    public function total()
-    {
-        return $this->grossTotal() + $this->getDiscounts()->reduce(function ($prev, $next) {
-            return $prev + Arr::get($next, 'discount');
-        }, 0);
-    }
-
-    public function addItem(ItemContract $item, $quantity = 1)
-    {
-        $item->setQuantity($quantity);
-        $this->items->put($item->getId(), $item);
-        $this->save();
+        $this->items->remove($item);
+        $this->storage->set($this);
 
         return $this;
-    }
-
-    public function removeItem($item)
-    {
-        $itemId = ($item instanceof ItemContract) ? $item->getId() : $item;
-        $this->items->forget($itemId);
-        $this->save();
-
-        return $this;
-    }
-
-    public function getItems()
-    {
-        return $this->items;
-    }
-
-    public function getItemCount()
-    {
-        return $this->getItems()->count();
-    }
-
-    public function getGrossTotal()
-    {
-        return $this->getItemTotal();
-    }
-
-    public function getItemTotal()
-    {
-        return $this->items->sum(function ($item) {
-            return $item->getPrice() * $item->getQuantity();
-        });
-    }
-
-    public function getDiscounts()
-    {
-        return $this->coupons->map(function ($coupon) {
-            $discount = $coupon->discount($this);
-            $description = $coupon->getDescription();
-
-            return compact('discount', 'description');
-        });
-    }
-
-    public function addCoupon(CouponContract $coupon)
-    {
-        $this->coupons->put($coupon->getName(), $coupon);
-        $this->save();
-
-        return $this;
-    }
-
-    public function save()
-    {
-        $this->getSession()->set($this->getName(), [
-            'items'     => $this->items,
-            'coupons'   => $this->coupons,
-        ]);
     }
 
     public function clear()
     {
-        $this->items = new Collection();
-        $this->coupons = new Collection();
-        $this->save();
+        $this->items = new ItemCollection();
+        $this->coupons = new CouponCollection();
+        $this->storage->set($this);
+
+        return $this;
     }
 
-    protected function getSession()
+    public function items()
     {
-        return is_null(self::$session) === false ?
-            self::$session :
-            static::setSession(new Session(new PhpBridgeSessionStorage()));
+        return $this->items;
     }
 
-    public static function setSession(SessionInterface $storage)
+    public function count()
     {
-        self::$session = $storage;
-        static::startSession(self::$session);
-
-        return self::$session;
+        return $this->items()->count();
     }
 
-    protected static function startSession()
+    public function total()
     {
-        if (self::$session->isStarted() === false) {
-            self::$session->start();
-            register_shutdown_function(function () {
-                if (self::$session->isStarted() === true) {
-                    self::$session->save();
-                }
-            });
-        }
+        return $this->items()->total();
     }
 
-    public static function instance($name = null, SessionInterface $session = null)
+    public function coupons()
     {
-        $name = is_null($name) === true ? static::class : $name;
-
-        return (isset(self::$instance[$name]) === true) ? self::$instance[$name] : new static($name, $session);
+        return $this->coupons;
     }
 
-    public static function driver($driver = null)
+    public static function instance($name = 'default', SessionInterface $session = null)
     {
-        return static::instance($driver);
+        return (array_key_exists($name, static::$instance) === true) ? self::$instance[$name] : new static($name, $session);
+    }
+
+    public static function driver($name = 'default', SessionInterface $session = null)
+    {
+        return static::instance($name, $session);
     }
 }

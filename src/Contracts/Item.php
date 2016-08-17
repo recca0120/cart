@@ -90,15 +90,6 @@ interface Item extends ArrayAccess, Arrayable, Jsonable, JsonSerializable
     public function setQuantity($quantity);
 
     /**
-     * getTotal.
-     *
-     * @method getTotal
-     *
-     * @return float
-     */
-    public function getTotal();
-
-    /**
      * getOptions.
      *
      * @method getOptions
@@ -138,4 +129,13 @@ interface Item extends ArrayAccess, Arrayable, Jsonable, JsonSerializable
      * @return static
      */
     public function setOption($key, $value);
+
+    /**
+     * total.
+     *
+     * @method total
+     *
+     * @return float
+     */
+    public function total();
 }
