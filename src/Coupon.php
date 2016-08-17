@@ -11,10 +11,11 @@ class Coupon extends Fluent  implements CouponContract
 {
     public function __construct($code, $description, Closure $handler = null)
     {
-        $this->code = $code;
-        $this->description = $description;
-        $this->discount = 0;
-        $this->handler = is_null($handler) === false ? $handler : [$this, 'defaultHandler'];
+        $this
+            ->setCode($code)
+            ->setDescription($description)
+            ->setHandler($handler)
+            ->setDiscount(0);
     }
 
     public function getCode()
@@ -22,9 +23,21 @@ class Coupon extends Fluent  implements CouponContract
         return $this->code;
     }
 
-    public function setDiscount($discount)
+    public function setCode($code)
     {
-        $this->discount = $discount;
+        $this->code = $code;
+
+        return $this;
+    }
+
+    public function getDescription()
+    {
+        return $this->description;
+    }
+
+    public function setDescription($description)
+    {
+        $this->description = $description;
 
         return $this;
     }
@@ -34,14 +47,23 @@ class Coupon extends Fluent  implements CouponContract
         return $this->discount;
     }
 
-    public function setHandler(Closure $handler)
+    public function setDiscount($discount)
     {
-        $this->handler = $handler;
+        $this->discount = $discount;
+
+        return $this;
     }
 
     public function defaultHandler(CartContract $cart)
     {
-        return $cart;
+        return 0;
+    }
+
+    public function setHandler(Closure $handler = null)
+    {
+        $this->handler = is_null($handler) === false ? $handler : [$this, 'defaultHandler'];
+
+        return $this;
     }
 
     public function apply(CartContract $cart)

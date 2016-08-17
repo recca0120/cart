@@ -109,5 +109,11 @@ class CartTest extends PHPUnit_Framework_TestCase
         $total = $cart->total();
         $cart->coupons()->add($coupon);
         $this->assertSame($total + 120, $cart->total());
+        $this->assertSame(120, $coupon->getDiscount());
+        $this->assertSame('freeShipping', $coupon->getCode());
+        $this->assertSame('運2000免運費', $coupon->getDescription());
+
+        $cart->coupons()->add(new Coupon('n', 'n'));
+        $cart->total();
     }
 }
