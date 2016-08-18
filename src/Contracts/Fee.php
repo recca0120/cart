@@ -18,6 +18,8 @@ interface Fee
 
     public function defaultHandler(Cart $cart);
 
+    public function getHandler();
+
     public function setHandler(Closure $handler = null);
 
     public function apply(Cart $cart);

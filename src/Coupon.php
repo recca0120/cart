@@ -61,17 +61,20 @@ class Coupon extends Fluent implements CouponContract
         return 0;
     }
 
+    public function getHandler()
+    {
+        return $this->handler;
+    }
+
     public function setHandler(Closure $handler = null)
     {
-        $this->handler = is_null($handler) === false ? $handler : function (CartContract $cart) {
-            return $this->defaultHandler($cart);
-        };
+        $this->handler = is_null($handler) === false ? $handler : [$this, 'defaultHandler'];
 
         return $this;
     }
 
     public function apply(CartContract $cart)
     {
-        return call_user_func($this->handler, $cart);
+        return call_user_func($this->getHandler(), $cart);
     }
 }
