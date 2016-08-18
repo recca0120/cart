@@ -3,26 +3,39 @@
 namespace Recca0120\Cart;
 
 use Closure;
+use Illuminate\Support\Str;
 use Opis\Closure\SerializableClosure;
 
 trait SerializeHandler
 {
+    protected function serializeHandler($handler)
+    {
+        if (($handler instanceof Closure) === false) {
+            return $handler;
+        }
+
+        return serialize(new SerializableClosure($this->attributes['handler']));
+    }
+
+    protected function unserializeHandler($handler)
+    {
+        if (is_string($handler) === false || Str::contains($handler, 'Opis\Closure\SerializableClosure') === false) {
+            return $handler;
+        }
+
+        return unserialize($handler)->getClosure();
+    }
+
     public function __sleep()
     {
-
-        // if ($this->attributes['handler'] instanceof Closure) {
-        // $serializer = new Serializer();
-        // $this->attributes['handler'] = $serializer->serialize($this->attributes['handler']);
-        // }
-
-        $this->attributes['handler'] = serialize(new SerializableClosure($this->attributes['handler']));
+        $this->attributes['handler'] = $this->serializeHandler($this->attributes['handler']);
 
         return ['attributes'];
     }
 
     public function __wakeup()
     {
-        $this->attributes['handler'] = unserialize($this->attributes['handler'])->getClosure();
+        $this->attributes['handler'] = $this->unserializeHandler($this->attributes['handler']);
 
         return ['attributes'];
     }
