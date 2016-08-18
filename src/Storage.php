@@ -6,6 +6,7 @@ use Recca0120\Cart\Contracts\Cart as CartContract;
 use Recca0120\Cart\Contracts\Storage as StorageContract;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage;
 use Symfony\Component\HttpFoundation\Session\Storage\PhpBridgeSessionStorage;
 
 class Storage implements StorageContract
@@ -25,7 +26,7 @@ class Storage implements StorageContract
     protected function getSession()
     {
         $session = (is_null(static::$sessionInstance) === true) ?
-            new Session(new PhpBridgeSessionStorage()) :
+            new Session($this->getDefaultSessionStorage()) :
             static::$sessionInstance;
 
         if ($session->isStarted() === false) {
@@ -58,6 +59,13 @@ class Storage implements StorageContract
     protected function hash($key)
     {
         return hash('sha256', $key);
+    }
+
+    protected function getDefaultSessionStorage()
+    {
+        return (PHP_SESSION_ACTIVE === session_status()) ?
+            new PhpBridgeSessionStorage() :
+            new NativeSessionStorage();
     }
 
     public static function setSession(SessionInterface $session)

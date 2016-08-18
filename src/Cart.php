@@ -91,10 +91,10 @@ class Cart implements CartContract
 
     public function total()
     {
-        $discount = $this->coupons->apply($this)->sum();
-        $fee = $this->fees->apply($this)->sum();
+        $coupons = $this->coupons()->apply($this);
+        $fees = $this->fees()->apply($this);
 
-        return max(0, $this->grossTotal() + $fee - $discount);
+        return max(0, $this->grossTotal() + $fees->sum() - $coupons->sum());
     }
 
     public function coupons()
