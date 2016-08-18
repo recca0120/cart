@@ -8,7 +8,7 @@ use Recca0120\Cart\Contracts\Cart as CartContract;
 
 abstract class CouponOrFee extends Fluent
 {
-    use SerializeHandler;
+    use HandlerSerializer;
 
     public function __construct($code, $description, Closure $handler = null)
     {

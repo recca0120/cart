@@ -6,7 +6,7 @@ use Closure;
 use Illuminate\Support\Str;
 use SuperClosure\Serializer;
 
-trait SerializeHandler
+trait HandlerSerializer
 {
     public function getHandler()
     {
