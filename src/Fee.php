@@ -16,7 +16,8 @@ class Fee extends Fluent implements FeeContract
         $this
             ->setCode($code)
             ->setDescription($description)
-            ->setHandler($handler);
+            ->setHandler($handler)
+            ->setFee(null);
     }
 
     public function getCode()
@@ -39,6 +40,18 @@ class Fee extends Fluent implements FeeContract
     public function setDescription($description)
     {
         $this->description = $description;
+
+        return $this;
+    }
+
+    public function getFee()
+    {
+        return $this->fee;
+    }
+
+    public function setFee($fee)
+    {
+        $this->fee = $fee;
 
         return $this;
     }

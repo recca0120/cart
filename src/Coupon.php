@@ -17,7 +17,7 @@ class Coupon extends Fluent implements CouponContract
             ->setCode($code)
             ->setDescription($description)
             ->setHandler($handler)
-            ->setDiscount(0);
+            ->setDiscount(null);
     }
 
     public function getCode()
