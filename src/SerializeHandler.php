@@ -8,48 +8,42 @@ use SuperClosure\Serializer;
 
 trait SerializeHandler
 {
-    protected $cacheHandler;
-
     public function getHandler()
     {
-        if (is_null($this->cacheHandler) === true) {
-            $this->cacheHandler = $this->unserialize($this->handler);
-        }
-
-        return $this->cacheHandler;
+        return $this->unserializeClsoure($this->handler);
     }
 
     public function setHandler(Closure $handler = null)
     {
-        $this->cacheHandler = null;
+        $self = $this;
         $handler = is_null($handler) === false ? $handler : [$this, 'defaultHandler'];
-        $this->handler = $this->serialize($handler);
+        $this->handler = $this->serializeClosure($handler);
 
         return $this;
     }
 
-    protected function serialize($handler)
+    protected function serializeClosure($closure)
     {
-        if (($handler instanceof Closure) === false) {
-            return $handler;
+        if (($closure instanceof Closure) === false) {
+            return $closure;
         }
 
         $serialized = $this->useOpis() === true ?
-            serialize(new \Opis\Closure\SerializableClosure($handler)) :
-            (new Serializer())->serialize($handler);
+            serialize(new \Opis\Closure\SerializableClosure($closure)) :
+            (new Serializer())->serialize($closure);
 
         return $serialized;
     }
 
-    protected function unserialize($handler)
+    protected function unserializeClsoure($serialized)
     {
-        if (is_string($handler) === false || Str::contains($handler, 'SerializableClosure') === false) {
-            return $handler;
+        if (is_string($serialized) === false || Str::contains($serialized, 'SerializableClosure') === false) {
+            return $serialized;
         }
 
         $closure = $this->useOpis() === true ?
-             unserialize($handler)->getClosure()->bindTo($this) :
-            (new Serializer())->unserialize($handler);
+             unserialize($serialized)->getClosure() :
+            (new Serializer())->unserialize($serialized);
 
         return $closure;
     }
