@@ -3,9 +3,7 @@
 namespace Recca0120\Cart;
 
 use Closure;
-use Exception;
 use Illuminate\Support\Str;
-use Opis\Closure\SerializableClosure;
 use SuperClosure\Serializer;
 
 trait SerializeHandler
@@ -20,7 +18,7 @@ trait SerializeHandler
     public function setHandler(Closure $handler = null)
     {
         $this->cacheHandler = null;
-        $handler = is_null($handler) === false ? $handler : function () {};
+        $handler = is_null($handler) === false ? $handler : [$this, 'defaultHandler'];
 
         $this->handler = $this->serialize($handler);
 
@@ -37,10 +35,10 @@ trait SerializeHandler
             return $this->cacheHandler = $handler;
         }
 
-        try {
+        if (class_exists('\\Opis\\Closure\\SerializableClosure') === true) {
+            $serialized = serialize(new \Opis\Closure\SerializableClosure($handler));
+        } else {
             $serialized = (new Serializer())->serialize($handler);
-        } catch (Exception $e) {
-            $serialized = serialize(new SerializableClosure($handler));
         }
 
         return $this->cacheHandler = $serialized;
@@ -52,10 +50,10 @@ trait SerializeHandler
             return $handler;
         }
 
-        try {
-            $closure = (new Serializer())->unserialize($handler);
-        } catch (Exception $e) {
+        if (class_exists('\\Opis\\Closure\\SerializableClosure') === true) {
             $closure = unserialize($handler)->getClosure()->bindTo($this);
+        } else {
+            $closure = (new Serializer())->unserialize($handler);
         }
 
         return $closure;
