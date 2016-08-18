@@ -4,12 +4,12 @@ namespace Recca0120\Cart;
 
 use Closure;
 use Illuminate\Support\Fluent;
+use Illuminate\Support\Str;
 use Recca0120\Cart\Contracts\Cart as CartContract;
+use SuperClosure\Serializer;
 
 abstract class CouponOrFee extends Fluent
 {
-    use SerializeHandler;
-
     public function __construct($code, $description, Closure $handler = null)
     {
         $this
@@ -60,5 +60,50 @@ abstract class CouponOrFee extends Fluent
         $value = call_user_func_array($this->getHandler(), [$cart, $this]);
 
         return $this->setValue($value);
+    }
+
+    public function getHandler()
+    {
+        return $this->unserializeClsoure($this->handler);
+    }
+
+    public function setHandler(Closure $handler = null)
+    {
+        $self = $this;
+        $handler = is_null($handler) === false ? $handler : [$this, 'defaultHandler'];
+        $this->handler = $this->serializeClosure($handler);
+
+        return $this;
+    }
+
+    protected function serializeClosure($closure)
+    {
+        if (($closure instanceof Closure) === false) {
+            return $closure;
+        }
+
+        $serialized = $this->useOpis() === true ?
+            serialize(new \Opis\Closure\SerializableClosure($closure)) :
+            (new Serializer())->serialize($closure);
+
+        return $serialized;
+    }
+
+    protected function unserializeClsoure($serialized)
+    {
+        if (is_string($serialized) === false || Str::contains($serialized, 'SerializableClosure') === false) {
+            return $serialized;
+        }
+
+        $closure = $this->useOpis() === true ?
+             unserialize($serialized)->getClosure() :
+            (new Serializer())->unserialize($serialized);
+
+        return $closure;
+    }
+
+    protected function useOpis()
+    {
+        return class_exists('\\Opis\\Closure\\SerializableClosure') === true;
     }
 }
