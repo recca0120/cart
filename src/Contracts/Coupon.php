@@ -20,7 +20,7 @@ interface Coupon
 
     public function setDiscount($discount);
 
-    public function defaultHandler(Cart $cart);
+    public function defaultHandler(Cart $cart, Coupon $coupon);
 
     public function getHandler();
 

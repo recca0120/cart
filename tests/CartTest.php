@@ -207,7 +207,7 @@ class CartTest extends PHPUnit_Framework_TestCase
         $this->assertSame($code, $coupon->getCode());
         $this->assertSame($description, $coupon->getDescription());
         $this->assertSame($discount, $coupon->getDiscount());
-        $this->assertSame(0, $coupon->defaultHandler($cart));
+        $this->assertSame(0, $coupon->defaultHandler($cart, $coupon));
 
         $cart->removeCoupon($coupon->getCode());
         $this->assertSame($grossTotal, $cart->grossTotal());
@@ -255,7 +255,7 @@ class CartTest extends PHPUnit_Framework_TestCase
 
         $this->assertSame($code, $fee->getCode());
         $this->assertSame($description, $fee->getDescription());
-        $this->assertSame(0, $fee->defaultHandler($cart));
+        $this->assertSame(0, $fee->defaultHandler($cart, $fee));
 
         $cart->removeFee($fee->getCode());
         $this->assertSame($grossTotal, $cart->grossTotal());

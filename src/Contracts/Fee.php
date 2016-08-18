@@ -16,7 +16,7 @@ interface Fee
 
     public function setDescription($description);
 
-    public function defaultHandler(Cart $cart);
+    public function defaultHandler(Cart $cart, Fee $fee);
 
     public function getHandler();
 

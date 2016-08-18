@@ -43,13 +43,13 @@ class Fee extends Fluent implements FeeContract
         return $this;
     }
 
-    public function defaultHandler(CartContract $cart)
+    public function defaultHandler(CartContract $cart, FeeContract $fee)
     {
         return 0;
     }
 
     public function apply(CartContract $cart)
     {
-        return call_user_func($this->getHandler(), $cart);
+        return call_user_func_array($this->getHandler(), [$cart, $this]);
     }
 }
