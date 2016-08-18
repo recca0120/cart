@@ -35,8 +35,10 @@ class FeeTest extends PHPUnit_Framework_TestCase
         |------------------------------------------------------------
         */
 
+        $unserialized = unserialize($serialized);
         $this->assertTrue(is_string($serialized));
-        $this->assertTrue(is_callable(unserialize($serialized)->getHandler()));
+        $this->assertTrue(is_array($unserialized->getHandler()));
+        $unserialized->getHandler();
     }
 
     public function test_serialize_custom_handler()
@@ -65,7 +67,9 @@ class FeeTest extends PHPUnit_Framework_TestCase
         |------------------------------------------------------------
         */
 
+        $unserialized = unserialize($serialized);
         $this->assertTrue(is_string($serialized));
-        $this->assertInstanceOf(Closure::class, unserialize($serialized)->getHandler());
+        $this->assertInstanceOf(Closure::class, $unserialized->getHandler());
+        $unserialized->getHandler();
     }
 }

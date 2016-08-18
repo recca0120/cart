@@ -12,14 +12,17 @@ trait SerializeHandler
 
     public function getHandler()
     {
-        return $this->unserialize($this->handler);
+        if (is_null($this->cacheHandler) === true) {
+            $this->cacheHandler = $this->unserialize($this->handler);
+        }
+
+        return $this->cacheHandler;
     }
 
     public function setHandler(Closure $handler = null)
     {
         $this->cacheHandler = null;
         $handler = is_null($handler) === false ? $handler : [$this, 'defaultHandler'];
-
         $this->handler = $this->serialize($handler);
 
         return $this;
@@ -27,21 +30,15 @@ trait SerializeHandler
 
     protected function serialize($handler)
     {
-        if (is_null($this->cacheHandler) === false) {
-            return $this->cacheHandler;
-        }
-
         if (($handler instanceof Closure) === false) {
-            return $this->cacheHandler = $handler;
+            return $handler;
         }
 
-        if (class_exists('\\Opis\\Closure\\SerializableClosure') === true) {
-            $serialized = serialize(new \Opis\Closure\SerializableClosure($handler));
-        } else {
-            $serialized = (new Serializer())->serialize($handler);
-        }
+        $serialized = $this->useOpis() === true ?
+            serialize(new \Opis\Closure\SerializableClosure($handler)) :
+            (new Serializer())->serialize($handler);
 
-        return $this->cacheHandler = $serialized;
+        return $serialized;
     }
 
     protected function unserialize($handler)
@@ -50,12 +47,15 @@ trait SerializeHandler
             return $handler;
         }
 
-        if (class_exists('\\Opis\\Closure\\SerializableClosure') === true) {
-            $closure = unserialize($handler)->getClosure()->bindTo($this);
-        } else {
-            $closure = (new Serializer())->unserialize($handler);
-        }
+        $closure = $this->useOpis() === true ?
+             unserialize($handler)->getClosure()->bindTo($this) :
+            (new Serializer())->unserialize($handler);
 
         return $closure;
+    }
+
+    protected function useOpis()
+    {
+        return class_exists('\\Opis\\Closure\\SerializableClosure') === true;
     }
 }
