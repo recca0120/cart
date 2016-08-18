@@ -206,7 +206,7 @@ class CartTest extends PHPUnit_Framework_TestCase
 
         $this->assertSame($code, $coupon->getCode());
         $this->assertSame($description, $coupon->getDescription());
-        $this->assertSame($discount, $coupon->getDiscount());
+        $this->assertSame($discount, $coupon->getValue());
         $this->assertSame(0, $coupon->defaultHandler($cart, $coupon));
 
         $cart->removeCoupon($coupon->getCode());
@@ -275,20 +275,22 @@ class CartTest extends PHPUnit_Framework_TestCase
         $items->each(function ($item) use ($cart) {
             $cart->add($item, $item->getQuantity());
         });
+        $shippingFee = 120;
         $code = 'shipping-fee';
         $description = '運費120';
-        $fee = new Fee($code, $description, function ($cart) {
-            return 120;
+        $fee = new Fee($code, $description, function (Cart $cart, Fee $fee) use ($shippingFee) {
+            return $shippingFee;
         });
 
         $code = 'shipping-fee';
         $description = '滿10免運費';
-        $coupon = new Coupon($code, $description, function ($cart) {
-            if ($cart->grossTotal() >= 10) {
-                $cart->removeFee('shipping-fee');
-            }
-
-            return 0;
+        $coupon = new Coupon($code, $description, function (Cart $cart, Coupon $coupon) use ($shippingFee) {
+            return $cart->grossTotal() >= 10 ? $shippingFee : 0;
+            // if ($cart->grossTotal() >= 10) {
+            //     $cart->removeFee('shipping-fee');
+            // }
+            //
+            // return 0;
         });
 
         /*

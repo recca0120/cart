@@ -3,6 +3,9 @@
 namespace Recca0120\Cart;
 
 use Illuminate\Support\Arr;
+use Recca0120\Cart\Collections\CouponCollection;
+use Recca0120\Cart\Collections\FeeCollection;
+use Recca0120\Cart\Collections\ItemCollection;
 use Recca0120\Cart\Contracts\Cart as CartContract;
 use Recca0120\Cart\Contracts\Coupon as CouponContract;
 use Recca0120\Cart\Contracts\Fee as FeeContract;
@@ -69,6 +72,7 @@ class Cart implements CartContract
     {
         $this->items = new ItemCollection();
         $this->coupons = new CouponCollection();
+        $this->fees = new FeeCollection();
         $this->storage->set($this);
 
         return $this;
@@ -94,7 +98,15 @@ class Cart implements CartContract
         $coupons = $this->coupons()->apply($this);
         $fees = $this->fees()->apply($this);
 
-        return max(0, $this->grossTotal() + $fees->sum() - $coupons->sum());
+        $couponTotal = $coupons->reduce(function ($total, $coupon) {
+            return $total + $coupon->getValue();
+        }, 0);
+
+        $feeTotal = $fees->reduce(function ($total, $fee) {
+            return $total + $fee->getValue();
+        }, 0);
+
+        return max(0, $this->grossTotal() + $feeTotal - $couponTotal);
     }
 
     public function coupons()

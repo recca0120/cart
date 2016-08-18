@@ -1,6 +1,6 @@
 <?php
 
-namespace Recca0120\Cart;
+namespace Recca0120\Cart\Collections;
 
 use Illuminate\Support\Collection;
 use Recca0120\Cart\Contracts\Item as ItemContract;

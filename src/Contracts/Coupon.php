@@ -16,9 +16,9 @@ interface Coupon
 
     public function setDescription($description);
 
-    public function getDiscount();
+    public function getValue();
 
-    public function setDiscount($discount);
+    public function setValue($value);
 
     public function defaultHandler(Cart $cart, Coupon $coupon);
 

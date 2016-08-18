@@ -1,6 +1,6 @@
 <?php
 
-namespace Recca0120\Cart;
+namespace Recca0120\Cart\Collections;
 
 use Illuminate\Support\Collection;
 use Recca0120\Cart\Contracts\Cart as CartContract;
@@ -27,10 +27,7 @@ class CouponCollection extends Collection implements CouponCollectionContract
     public function apply(CartContract $cart)
     {
         return $this->map(function ($coupon) use ($cart) {
-            $discount = $coupon->apply($cart);
-            $coupon->setDiscount($discount);
-
-            return $discount;
+            return $coupon->apply($cart);
         });
     }
 }
