@@ -9,6 +9,8 @@ use Recca0120\Cart\Contracts\Coupon as CouponContract;
 
 class Coupon extends Fluent implements CouponContract
 {
+    use SerializeHandler;
+
     public function __construct($code, $description, Closure $handler = null)
     {
         $this
@@ -61,7 +63,9 @@ class Coupon extends Fluent implements CouponContract
 
     public function setHandler(Closure $handler = null)
     {
-        $this->handler = is_null($handler) === false ? $handler : [$this, 'defaultHandler'];
+        $this->handler = is_null($handler) === false ? $handler : function (CartContract $cart) {
+            return $this->defaultHandler($cart);
+        };
 
         return $this;
     }

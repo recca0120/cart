@@ -52,7 +52,7 @@ class Storage implements StorageContract
 
     public function get(CartContract $cart)
     {
-        return $this->session->get($this->hash($cart->getName()));
+        return $this->session->get($this->hash($cart->getName()), []);
     }
 
     protected function hash($key)
