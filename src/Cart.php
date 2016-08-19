@@ -11,9 +11,12 @@ use Recca0120\Cart\Contracts\Coupon as CouponContract;
 use Recca0120\Cart\Contracts\Fee as FeeContract;
 use Recca0120\Cart\Contracts\Item as ItemContract;
 use Recca0120\Cart\Contracts\Storage as StorageContract;
+use Recca0120\Cart\Helpers\HandlerSerializer;
 
 class Cart implements CartContract
 {
+    use HandlerSerializer;
+
     protected static $instance = [];
 
     protected $name = 'default';
@@ -24,20 +27,28 @@ class Cart implements CartContract
 
     protected $coupons;
 
+    protected $fees;
+
+    protected $handler;
+
     public function __construct($name = 'default', StorageContract $storage = null)
     {
         $this->setName($name);
-        self::$instance[$this->getName()] = $this;
         $this->setStorage($storage);
+        self::$instance[$this->getName()] = $this;
     }
 
     public function setStorage(StorageContract $storage = null)
     {
         $this->storage = (is_null($storage) === false) ? $storage : new Storage();
-        $data = $this->storage->get($this);
-        $this->items = Arr::get($data, 'items', new ItemCollection());
-        $this->coupons = Arr::get($data, 'coupons', new CouponCollection());
-        $this->fees = Arr::get($data, 'fees', new FeeCollection());
+        $data = $this->storage->get($this->getName());
+
+        $this->setItems(Arr::get($data, 'items'));
+        $this->setCoupons(Arr::get($data, 'coupons'));
+        $this->setFees(Arr::get($data, 'fees'));
+        $this->setHandler(Arr::get($data, 'handler'));
+
+        return $this;
     }
 
     public function setName($name = null)
@@ -52,28 +63,34 @@ class Cart implements CartContract
         return $this->name;
     }
 
-    public function add(ItemContract $item, $quantity = 0)
+    public function addCoupon(CouponContract $coupon)
     {
-        $this->items->add($item, $quantity);
-        $this->storage->set($this);
+        $this->coupons()->add($coupon);
+        $this->save();
 
         return $this;
     }
 
-    public function remove($item)
+    public function removeCoupon($coupon)
     {
-        $this->items->remove($item);
-        $this->storage->set($this);
+        $this->coupons()->remove($coupon);
+        $this->save();
 
         return $this;
     }
 
-    public function clear()
+    public function addFee(FeeContract $fee)
     {
-        $this->items = new ItemCollection();
-        $this->coupons = new CouponCollection();
-        $this->fees = new FeeCollection();
-        $this->storage->set($this);
+        $this->fees()->add($fee);
+        $this->save();
+
+        return $this;
+    }
+
+    public function removeFee($fee)
+    {
+        $this->fees()->remove($fee);
+        $this->save();
 
         return $this;
     }
@@ -95,8 +112,61 @@ class Cart implements CartContract
 
     public function total()
     {
-        $coupons = $this->coupons()->apply($this);
-        $fees = $this->fees()->apply($this);
+        return call_user_func_array($this->getHandler(), [$this]);
+    }
+
+    public function coupons()
+    {
+        return $this->coupons;
+    }
+
+    public function fees()
+    {
+        return $this->fees;
+    }
+
+    public function add(ItemContract $item, $quantity = 0)
+    {
+        $this->items->add($item, $quantity);
+        $this->save();
+
+        return $this;
+    }
+
+    public function remove($item)
+    {
+        $this->items->remove($item);
+        $this->save();
+
+        return $this;
+    }
+
+    public function clear($clearAll = false)
+    {
+        $this->setItems(null);
+        if ($clearAll === true) {
+            $this->setCoupons(null);
+            $this->setFees(null);
+            $this->setHandler(null);
+        }
+        $this->save();
+
+        return $this;
+    }
+
+    public function save()
+    {
+        $this->storage->set($this->getName(), [
+            'items'   => $this->items(),
+            'coupons' => $this->coupons(),
+            'fees'    => $this->fees(),
+        ]);
+    }
+
+    public function defaultHandler(CartContract $cart)
+    {
+        $coupons = $cart->coupons()->apply($cart);
+        $fees = $cart->fees()->apply($cart);
 
         $couponTotal = $coupons->reduce(function ($total, $coupon) {
             return $total + $coupon->getValue();
@@ -106,49 +176,7 @@ class Cart implements CartContract
             return $total + $fee->getValue();
         }, 0);
 
-        return max(0, $this->grossTotal() + $feeTotal - $couponTotal);
-    }
-
-    public function coupons()
-    {
-        return $this->coupons;
-    }
-
-    public function addCoupon(CouponContract $coupon)
-    {
-        $this->coupons()->add($coupon);
-        $this->storage->set($this);
-
-        return $this;
-    }
-
-    public function removeCoupon($coupon)
-    {
-        $this->coupons()->remove($coupon);
-        $this->storage->set($this);
-
-        return $this;
-    }
-
-    public function fees()
-    {
-        return $this->fees;
-    }
-
-    public function addFee(FeeContract $fee)
-    {
-        $this->fees()->add($fee);
-        $this->storage->set($this);
-
-        return $this;
-    }
-
-    public function removeFee($fee)
-    {
-        $this->fees()->remove($fee);
-        $this->storage->set($this);
-
-        return $this;
+        return max(0, $cart->grossTotal() + $feeTotal - $couponTotal);
     }
 
     public static function instance($name = 'default', StorageContract $storage = null)
@@ -159,5 +187,26 @@ class Cart implements CartContract
     public static function driver($name = 'default', StorageContract $storage = null)
     {
         return static::instance($name, $storage);
+    }
+
+    protected function setItems(ItemCollection $items = null)
+    {
+        $this->items = is_null($items) === false ? $items : new ItemCollection();
+
+        return $this;
+    }
+
+    protected function setCoupons(CouponCollection $coupons = null)
+    {
+        $this->coupons = is_null($coupons) === false ? $coupons : new CouponCollection();
+
+        return $this;
+    }
+
+    protected function setFees(FeeCollection $fees = null)
+    {
+        $this->fees = is_null($fees) === false ? $fees : new FeeCollection();
+
+        return $this;
     }
 }

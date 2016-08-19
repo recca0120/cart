@@ -128,7 +128,7 @@ class CartTest extends PHPUnit_Framework_TestCase
         $this->assertSame($count, $cart->items()->count());
     }
 
-    public function test_clear_item()
+    public function test_clear_items()
     {
         /*
         |------------------------------------------------------------
@@ -141,6 +141,9 @@ class CartTest extends PHPUnit_Framework_TestCase
         $items->each(function ($item) use ($cart) {
             $cart->add($item, $item->getQuantity());
         });
+
+        $cart->addCoupon(new Coupon('test', 'test'));
+        $cart->addFee(new Fee('test', 'test'));
 
         /*
         |------------------------------------------------------------
@@ -158,7 +161,45 @@ class CartTest extends PHPUnit_Framework_TestCase
 
         $this->assertSame(0, $cart->count());
         $this->assertSame(0, $cart->items()->count());
+        $this->assertSame(1, $cart->coupons()->count());
+        $this->assertSame(1, $cart->fees()->count());
+    }
+
+    public function test_clear_all()
+    {
+        /*
+        |------------------------------------------------------------
+        | Set
+        |------------------------------------------------------------
+        */
+
+        $cart = new Cart();
+        $items = $this->generateItems();
+        $items->each(function ($item) use ($cart) {
+            $cart->add($item, $item->getQuantity());
+        });
+
+        $cart->addCoupon(new Coupon('test', 'test'));
+        $cart->addFee(new Fee('test', 'test'));
+
+        /*
+        |------------------------------------------------------------
+        | Expectation
+        |------------------------------------------------------------
+        */
+
+        /*
+        |------------------------------------------------------------
+        | Assertion
+        |------------------------------------------------------------
+        */
+
+        $cart->clear(true);
+
+        $this->assertSame(0, $cart->count());
+        $this->assertSame(0, $cart->items()->count());
         $this->assertSame(0, $cart->coupons()->count());
+        $this->assertSame(0, $cart->fees()->count());
     }
 
     public function test_add_coupon_20_percent_off()

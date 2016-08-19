@@ -6,10 +6,12 @@ use Closure;
 use Illuminate\Support\Fluent;
 use Recca0120\Cart\Contracts\Cart as CartContract;
 use Recca0120\Cart\Contracts\CouponOrFee as CouponOrFeeContract;
-use Recca0120\Cart\Helpers\Serializer;
+use Recca0120\Cart\Helpers\HandlerSerializer;
 
 abstract class CouponOrFee extends Fluent implements CouponOrFeeContract
 {
+    use HandlerSerializer;
+
     public function __construct($code, $description, Closure $handler = null)
     {
         $this
@@ -60,19 +62,6 @@ abstract class CouponOrFee extends Fluent implements CouponOrFeeContract
         $value = call_user_func_array($this->getHandler(), [$cart, $this]);
 
         return $this->setValue($value);
-    }
-
-    public function getHandler()
-    {
-        return Serializer::unserialize($this->handler);
-    }
-
-    public function setHandler(Closure $handler = null)
-    {
-        $handler = is_null($handler) === false ? $handler : [$this, 'defaultHandler'];
-        $this->handler = Serializer::serialize($handler);
-
-        return $this;
     }
 
     public function defaultHandler(CartContract $cart, CouponOrFeeContract $coupon)

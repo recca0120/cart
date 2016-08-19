@@ -8,9 +8,9 @@ interface Storage
 {
     public function __construct(SessionInterface $session = null);
 
-    public function set(Cart $cart);
+    public function set($key, $value);
 
-    public function get(Cart $cart);
+    public function get($value);
 
     public static function setSession(SessionInterface $session);
 }

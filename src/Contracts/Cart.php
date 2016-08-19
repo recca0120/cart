@@ -2,6 +2,8 @@
 
 namespace Recca0120\Cart\Contracts;
 
+use Closure;
+
 interface Cart
 {
     public function __construct($name = 'default', Storage $storage = null);
@@ -37,6 +39,10 @@ interface Cart
     public function addFee(Fee $fee);
 
     public function removeFee($fee);
+
+    public function getHandler();
+
+    public function setHandler(Closure $handler = null);
 
     public static function instance($name = 'default', Storage $storage = null);
 
