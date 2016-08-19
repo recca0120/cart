@@ -8,13 +8,20 @@ trait HandlerSerializer
 {
     public function getHandler()
     {
+        if (is_null($this->handler) === true) {
+            return [$this, 'defaultHandler'];
+        }
+
         return Serializer::unserialize($this->handler);
     }
 
-    public function setHandler(Closure $handler = null)
+    public function setHandler(callable $handler = null)
     {
-        $handler = is_null($handler) === false ? $handler : [$this, 'defaultHandler'];
-        $this->handler = Serializer::serialize($handler);
+        if (is_null($handler) === true) {
+            return $this;
+        }
+
+        $this->handler = ($handler instanceof Closure) ? Serializer::serialize($handler) : $handler;
 
         return $this;
     }

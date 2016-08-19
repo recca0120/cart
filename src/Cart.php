@@ -23,11 +23,11 @@ class Cart implements CartContract
 
     protected $storage;
 
-    protected $items;
-
-    protected $coupons;
-
-    protected $fees;
+    protected $attributes = [
+        'items'   => null,
+        'coupons' => null,
+        'fees'    => null,
+    ];
 
     protected $handler;
 
@@ -97,7 +97,7 @@ class Cart implements CartContract
 
     public function items()
     {
-        return $this->items;
+        return $this->attributes['items'];
     }
 
     public function count()
@@ -144,17 +144,17 @@ class Cart implements CartContract
 
     public function coupons()
     {
-        return $this->coupons;
+        return $this->attributes['coupons'];
     }
 
     public function fees()
     {
-        return $this->fees;
+        return $this->attributes['fees'];
     }
 
     public function add(ItemContract $item, $quantity = 0)
     {
-        $this->items->add($item, $quantity);
+        $this->items()->add($item, $quantity);
         $this->save();
 
         return $this;
@@ -162,7 +162,7 @@ class Cart implements CartContract
 
     public function remove($item)
     {
-        $this->items->remove($item);
+        $this->items()->remove($item);
         $this->save();
 
         return $this;
@@ -183,11 +183,9 @@ class Cart implements CartContract
 
     public function save()
     {
-        $this->storage->set($this->getName(), [
-            'items'   => $this->items(),
-            'coupons' => $this->coupons(),
-            'fees'    => $this->fees(),
-        ]);
+        $this->storage->set($this->getName(), array_merge($this->attributes, [
+            'handler' => $this->getHandler(),
+        ]));
     }
 
     public static function instance($name = 'default', StorageContract $storage = null)
@@ -202,21 +200,21 @@ class Cart implements CartContract
 
     protected function setItems(ItemCollection $items = null)
     {
-        $this->items = is_null($items) === false ? $items : new ItemCollection();
+        $this->attributes['items'] = is_null($items) === false ? $items : new ItemCollection();
 
         return $this;
     }
 
     protected function setCoupons(CouponCollection $coupons = null)
     {
-        $this->coupons = is_null($coupons) === false ? $coupons : new CouponCollection();
+        $this->attributes['coupons'] = is_null($coupons) === false ? $coupons : new CouponCollection();
 
         return $this;
     }
 
     protected function setFees(FeeCollection $fees = null)
     {
-        $this->fees = is_null($fees) === false ? $fees : new FeeCollection();
+        $this->attributes['fees'] = is_null($fees) === false ? $fees : new FeeCollection();
 
         return $this;
     }

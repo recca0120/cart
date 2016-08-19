@@ -5,10 +5,10 @@ namespace Recca0120\Cart;
 use Closure;
 use Illuminate\Support\Fluent;
 use Recca0120\Cart\Contracts\Cart as CartContract;
-use Recca0120\Cart\Contracts\CouponOrFee as CouponOrFeeContract;
+use Recca0120\Cart\Contracts\Extra as ExtraContract;
 use Recca0120\Cart\Helpers\HandlerSerializer;
 
-abstract class CouponOrFee extends Fluent implements CouponOrFeeContract
+abstract class Extra extends Fluent implements ExtraContract
 {
     use HandlerSerializer;
 
@@ -64,7 +64,7 @@ abstract class CouponOrFee extends Fluent implements CouponOrFeeContract
         return $this->setValue($value);
     }
 
-    public function defaultHandler(CartContract $cart, CouponOrFeeContract $coupon)
+    public function defaultHandler(CartContract $cart, ExtraContract $coupon)
     {
         return 0;
     }
