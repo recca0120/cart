@@ -52,7 +52,7 @@ abstract class CouponOrFee extends Fluent implements CouponOrFeeContract
 
     public function setValue($value)
     {
-        $this->value = $value;
+        $this->value = (float) $value;
 
         return $this;
     }

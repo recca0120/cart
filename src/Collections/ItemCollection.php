@@ -26,7 +26,7 @@ class ItemCollection extends Collection implements ItemCollectionContract
 
     public function total()
     {
-        return $this->sum(function (ItemContract $item) {
+        return (float) $this->sum(function (ItemContract $item) {
             return $item->total();
         });
     }

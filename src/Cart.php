@@ -107,7 +107,7 @@ class Cart implements CartContract
 
     public function grossTotal()
     {
-        return $this->items()->total();
+        return (float) $this->items()->total();
     }
 
     public function total()
@@ -134,7 +134,7 @@ class Cart implements CartContract
             ],
         ];
 
-        return call_user_func_array($this->getHandler(), $params);
+        return (float) call_user_func_array($this->getHandler(), $params);
     }
 
     public function defaultHandler($total, $options)
