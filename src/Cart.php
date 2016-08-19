@@ -7,8 +7,7 @@ use Recca0120\Cart\Collections\CouponCollection;
 use Recca0120\Cart\Collections\FeeCollection;
 use Recca0120\Cart\Collections\ItemCollection;
 use Recca0120\Cart\Contracts\Cart as CartContract;
-use Recca0120\Cart\Contracts\Coupon as CouponContract;
-use Recca0120\Cart\Contracts\Fee as FeeContract;
+use Recca0120\Cart\Contracts\FeeSpec as FeeSpecContract;
 use Recca0120\Cart\Contracts\Item as ItemContract;
 use Recca0120\Cart\Contracts\Storage as StorageContract;
 use Recca0120\Cart\Helpers\HandlerSerializer;
@@ -63,7 +62,7 @@ class Cart implements CartContract
         return $this->name;
     }
 
-    public function addCoupon(CouponContract $coupon)
+    public function addCoupon(FeeSpecContract $coupon)
     {
         $this->coupons()->add($coupon);
         $this->save();
@@ -79,7 +78,7 @@ class Cart implements CartContract
         return $this;
     }
 
-    public function addFee(FeeContract $fee)
+    public function addFee(FeeSpecContract $fee)
     {
         $this->fees()->add($fee);
         $this->save();

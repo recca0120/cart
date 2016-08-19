@@ -2,6 +2,6 @@
 
 namespace Recca0120\Cart\Contracts;
 
-interface Coupon extends Extra
+interface Coupon extends FeeSpec
 {
 }

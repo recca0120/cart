@@ -2,11 +2,9 @@
 
 namespace Recca0120\Cart\Contracts;
 
-use Closure;
-
-interface Extra extends Handler
+interface FeeSpec extends Handler
 {
-    public function __construct($code, $description, Closure $handler = null);
+    public function __construct($code, $description, callable $handler = null);
 
     public function getCode();
 
@@ -20,7 +18,7 @@ interface Extra extends Handler
 
     public function setValue($value);
 
-    public function defaultHandler(Cart $cart, Extra $coupon);
+    public function defaultHandler(Cart $cart, FeeSpec $coupon);
 
     public function apply(Cart $cart);
 }

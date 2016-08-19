@@ -2,17 +2,16 @@
 
 namespace Recca0120\Cart;
 
-use Closure;
 use Illuminate\Support\Fluent;
 use Recca0120\Cart\Contracts\Cart as CartContract;
-use Recca0120\Cart\Contracts\Extra as ExtraContract;
+use Recca0120\Cart\Contracts\FeeSpec as FeeSpecContract;
 use Recca0120\Cart\Helpers\HandlerSerializer;
 
-abstract class Extra extends Fluent implements ExtraContract
+abstract class FeeSpec extends Fluent implements FeeSpecContract
 {
     use HandlerSerializer;
 
-    public function __construct($code, $description, Closure $handler = null)
+    public function __construct($code, $description, callable $handler = null)
     {
         $this
             ->setCode($code)
@@ -64,7 +63,7 @@ abstract class Extra extends Fluent implements ExtraContract
         return $this->setValue($value);
     }
 
-    public function defaultHandler(CartContract $cart, ExtraContract $coupon)
+    public function defaultHandler(CartContract $cart, FeeSpecContract $fee)
     {
         return 0;
     }

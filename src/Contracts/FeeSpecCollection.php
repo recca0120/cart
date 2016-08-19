@@ -2,9 +2,9 @@
 
 namespace Recca0120\Cart\Contracts;
 
-interface FeeCollection
+interface FeeSpecCollection
 {
-    public function add(Fee $fee);
+    public function add(FeeSpec $fee);
 
     public function remove($fee);
 
