@@ -122,7 +122,7 @@ class Cart implements CartContract
 
         $grossTotal = $this->grossTotal();
 
-        $total = max(0, $this->grossTotal() + $fee - $coupon);
+        $total = $this->grossTotal() + $fee - $coupon;
 
         $params = [
             'total'      => $total,
@@ -134,7 +134,7 @@ class Cart implements CartContract
             ],
         ];
 
-        return (float) call_user_func_array($this->getHandler(), $params);
+        return (float) max(0, call_user_func_array($this->getHandler(), $params));
     }
 
     public function defaultHandler($total, $options)
