@@ -1,8 +1,9 @@
 <?php
 
-namespace Recca0120\Cart\Helpers;
+namespace Recca0120\Cart;
 
 use Closure;
+use Recca0120\Cart\Serializer\SerializerFactory;
 
 trait HandlerSerializer
 {
@@ -12,7 +13,7 @@ trait HandlerSerializer
             return [$this, 'defaultHandler'];
         }
 
-        return Serializer::unserialize($this->handler);
+        return SerializerFactory::factory()->unserialize($this->handler);
     }
 
     public function setHandler(callable $handler = null)
@@ -21,7 +22,7 @@ trait HandlerSerializer
             return $this;
         }
 
-        $this->handler = ($handler instanceof Closure) ? Serializer::serialize($handler) : $handler;
+        $this->handler = ($handler instanceof Closure) ? SerializerFactory::factory()->serialize($handler) : $handler;
 
         return $this;
     }

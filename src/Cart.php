@@ -3,14 +3,12 @@
 namespace Recca0120\Cart;
 
 use Illuminate\Support\Arr;
-use Recca0120\Cart\Collections\CouponCollection;
-use Recca0120\Cart\Collections\FeeCollection;
+use Recca0120\Cart\Collections\FeeSpecCollection;
 use Recca0120\Cart\Collections\ItemCollection;
 use Recca0120\Cart\Contracts\Cart as CartContract;
 use Recca0120\Cart\Contracts\FeeSpec as FeeSpecContract;
 use Recca0120\Cart\Contracts\Item as ItemContract;
 use Recca0120\Cart\Contracts\Storage as StorageContract;
-use Recca0120\Cart\Helpers\HandlerSerializer;
 
 class Cart implements CartContract
 {
@@ -204,16 +202,16 @@ class Cart implements CartContract
         return $this;
     }
 
-    protected function setCoupons(CouponCollection $coupons = null)
+    protected function setCoupons(FeeSpecCollection $coupons = null)
     {
-        $this->attributes['coupons'] = is_null($coupons) === false ? $coupons : new CouponCollection();
+        $this->attributes['coupons'] = is_null($coupons) === false ? $coupons : new FeeSpecCollection();
 
         return $this;
     }
 
-    protected function setFees(FeeCollection $fees = null)
+    protected function setFees(FeeSpecCollection $fees = null)
     {
-        $this->attributes['fees'] = is_null($fees) === false ? $fees : new FeeCollection();
+        $this->attributes['fees'] = is_null($fees) === false ? $fees : new FeeSpecCollection();
 
         return $this;
     }

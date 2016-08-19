@@ -5,7 +5,6 @@ namespace Recca0120\Cart;
 use Illuminate\Support\Fluent;
 use Recca0120\Cart\Contracts\Cart as CartContract;
 use Recca0120\Cart\Contracts\FeeSpec as FeeSpecContract;
-use Recca0120\Cart\Helpers\HandlerSerializer;
 
 abstract class FeeSpec extends Fluent implements FeeSpecContract
 {
