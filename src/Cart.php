@@ -112,7 +112,34 @@ class Cart implements CartContract
 
     public function total()
     {
-        return call_user_func_array($this->getHandler(), [$this]);
+        $coupon = $this->coupons()->apply($this)->reduce(function ($total, $coupon) {
+            return $total + $coupon->getValue();
+        }, 0);
+
+        $fee = $this->fees()->apply($this)->reduce(function ($total, $fee) {
+            return $total + $fee->getValue();
+        }, 0);
+
+        $grossTotal = $this->grossTotal();
+
+        $total = max(0, $this->grossTotal() + $fee - $coupon);
+
+        $params = [
+            'total'      => $total,
+            'options'    => [
+                'grossTotal' => $grossTotal,
+                'coupon'     => $coupon,
+                'fee'        => $fee,
+                'cart'       => $this,
+            ],
+        ];
+
+        return call_user_func_array($this->getHandler(), $params);
+    }
+
+    public function defaultHandler($total, $options)
+    {
+        return $total;
     }
 
     public function coupons()
@@ -161,22 +188,6 @@ class Cart implements CartContract
             'coupons' => $this->coupons(),
             'fees'    => $this->fees(),
         ]);
-    }
-
-    public function defaultHandler(CartContract $cart)
-    {
-        $coupons = $cart->coupons()->apply($cart);
-        $fees = $cart->fees()->apply($cart);
-
-        $couponTotal = $coupons->reduce(function ($total, $coupon) {
-            return $total + $coupon->getValue();
-        }, 0);
-
-        $feeTotal = $fees->reduce(function ($total, $fee) {
-            return $total + $fee->getValue();
-        }, 0);
-
-        return max(0, $cart->grossTotal() + $feeTotal - $couponTotal);
     }
 
     public static function instance($name = 'default', StorageContract $storage = null)
