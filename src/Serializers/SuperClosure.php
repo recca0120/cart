@@ -1,23 +1,19 @@
 <?php
 
-namespace Recca0120\Cart\Serializer;
+namespace Recca0120\Cart\Serializers;
 
 use Closure;
 use SuperClosure\Serializer;
 
 class SuperClosure extends SerializerFactory
 {
-    public function serialize(Closure $closure)
+    public function doSerialize(Closure $closure)
     {
         return (new Serializer())->serialize($closure);
     }
 
-    public function unserialize($serialized)
+    public function doUnSerialize($serialized)
     {
-        if ($this->isUnserialized($serialized) === false) {
-            return $serialized;
-        }
-
         return (new Serializer())->unserialize($serialized);
     }
 }

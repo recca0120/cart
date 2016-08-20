@@ -1,6 +1,6 @@
 <?php
 
-namespace Recca0120\Cart\Serializer;
+namespace Recca0120\Cart\Serializers;
 
 use Closure;
 use Illuminate\Support\Str;
@@ -32,6 +32,19 @@ abstract class SerializerFactory
         return (is_string($serialized) === true && Str::contains($serialized, 'SerializableClosure') === true);
     }
 
-    abstract public function serialize(Closure $closure);
-    abstract public function unserialize($serialized);
+    public function serialize(Closure $closure)
+    {
+        return $this->doSerialize($closure);
+    }
+    public function unserialize($serialized)
+    {
+        if ($this->isUnserialized($serialized) === false) {
+            return $serialized;
+        }
+
+        return $this->doUnSerialize($serialized);
+    }
+
+    abstract protected function doSerialize(Closure $closure);
+    abstract protected function doUnSerialize($serialized);
 }

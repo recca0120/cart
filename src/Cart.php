@@ -3,10 +3,10 @@
 namespace Recca0120\Cart;
 
 use Illuminate\Support\Arr;
-use Recca0120\Cart\Collections\FeeSpecCollection;
+use Recca0120\Cart\Collections\FeeCollection;
 use Recca0120\Cart\Collections\ItemCollection;
 use Recca0120\Cart\Contracts\Cart as CartContract;
-use Recca0120\Cart\Contracts\FeeSpec as FeeSpecContract;
+use Recca0120\Cart\Contracts\Fee as FeeContract;
 use Recca0120\Cart\Contracts\Item as ItemContract;
 use Recca0120\Cart\Contracts\Storage as StorageContract;
 
@@ -20,13 +20,24 @@ class Cart implements CartContract
 
     protected $storage;
 
-    protected $attributes = [
-        'items'   => null,
-        'coupons' => null,
-        'fees'    => null,
+    protected $items;
+
+    protected $fees = [
+        'coupons'   => null,
+        'fees'      => null,
     ];
 
     protected $handler;
+
+    public static function instance($name = 'default', StorageContract $storage = null)
+    {
+        return (array_key_exists($name, static::$instance) === true) ? self::$instance[$name] : new static($name, $storage);
+    }
+
+    public static function driver($name = 'default', StorageContract $storage = null)
+    {
+        return static::instance($name, $storage);
+    }
 
     public function __construct($name = 'default', StorageContract $storage = null)
     {
@@ -40,10 +51,11 @@ class Cart implements CartContract
         $this->storage = (is_null($storage) === false) ? $storage : new Storage();
         $data = $this->storage->get($this->getName());
 
-        $this->setItems(Arr::get($data, 'items'));
-        $this->setCoupons(Arr::get($data, 'coupons'));
-        $this->setFees(Arr::get($data, 'fees'));
+        $this->setItemCollection(Arr::get($data, 'items'));
         $this->setHandler(Arr::get($data, 'handler'));
+        foreach ($this->fees as $key => $value) {
+            $this->setFeeCollection($key, Arr::get($data, 'fees.'.$key));
+        }
 
         return $this;
     }
@@ -60,41 +72,9 @@ class Cart implements CartContract
         return $this->name;
     }
 
-    public function addCoupon(FeeSpecContract $coupon)
-    {
-        $this->coupons()->add($coupon);
-        $this->save();
-
-        return $this;
-    }
-
-    public function removeCoupon($coupon)
-    {
-        $this->coupons()->remove($coupon);
-        $this->save();
-
-        return $this;
-    }
-
-    public function addFee(FeeSpecContract $fee)
-    {
-        $this->fees()->add($fee);
-        $this->save();
-
-        return $this;
-    }
-
-    public function removeFee($fee)
-    {
-        $this->fees()->remove($fee);
-        $this->save();
-
-        return $this;
-    }
-
     public function items()
     {
-        return $this->attributes['items'];
+        return $this->items;
     }
 
     public function count()
@@ -139,16 +119,6 @@ class Cart implements CartContract
         return $total;
     }
 
-    public function coupons()
-    {
-        return $this->attributes['coupons'];
-    }
-
-    public function fees()
-    {
-        return $this->attributes['fees'];
-    }
-
     public function add(ItemContract $item, $quantity = 0)
     {
         $this->items()->add($item, $quantity);
@@ -167,11 +137,12 @@ class Cart implements CartContract
 
     public function clear($clearAll = false)
     {
-        $this->setItems(null);
+        $this->setItemCollection(null);
         if ($clearAll === true) {
-            $this->setCoupons(null);
-            $this->setFees(null);
             $this->setHandler(null);
+            foreach ($this->fees as $key => $value) {
+                $this->setFeeCollection($key, null);
+            }
         }
         $this->save();
 
@@ -180,39 +151,73 @@ class Cart implements CartContract
 
     public function save()
     {
-        $this->storage->set($this->getName(), array_merge($this->attributes, [
+        $this->storage->set($this->getName(), [
+            'items'   => $this->items,
+            'fees'    => $this->fees,
             'handler' => $this->getHandler(),
-        ]));
-    }
-
-    public static function instance($name = 'default', StorageContract $storage = null)
-    {
-        return (array_key_exists($name, static::$instance) === true) ? self::$instance[$name] : new static($name, $storage);
-    }
-
-    public static function driver($name = 'default', StorageContract $storage = null)
-    {
-        return static::instance($name, $storage);
-    }
-
-    protected function setItems(ItemCollection $items = null)
-    {
-        $this->attributes['items'] = is_null($items) === false ? $items : new ItemCollection();
+        ]);
 
         return $this;
     }
 
-    protected function setCoupons(FeeSpecCollection $coupons = null)
+    public function coupons()
     {
-        $this->attributes['coupons'] = is_null($coupons) === false ? $coupons : new FeeSpecCollection();
+        return $this->getFeeCollection('coupons');
+    }
+
+    public function addCoupon(FeeContract $coupon)
+    {
+        $this->coupons()->add($coupon);
+        $this->save();
 
         return $this;
     }
 
-    protected function setFees(FeeSpecCollection $fees = null)
+    public function removeCoupon($coupon)
     {
-        $this->attributes['fees'] = is_null($fees) === false ? $fees : new FeeSpecCollection();
+        $this->coupons()->remove($coupon);
+        $this->save();
 
         return $this;
+    }
+
+    public function fees()
+    {
+        return $this->getFeeCollection('fees');
+    }
+
+    public function addFee(FeeContract $fee)
+    {
+        $this->fees()->add($fee);
+        $this->save();
+
+        return $this;
+    }
+
+    public function removeFee($fee)
+    {
+        $this->fees()->remove($fee);
+        $this->save();
+
+        return $this;
+    }
+
+    protected function setItemCollection(ItemCollection $itemCollection = null)
+    {
+        $this->items = is_null($itemCollection) === false ? $itemCollection : new ItemCollection();
+
+        return $this;
+    }
+
+    protected function setFeeCollection($key, FeeCollection $feeCollection = null)
+    {
+        $this->fees[$key] = is_null($feeCollection) === false ? $feeCollection : new FeeCollection();
+
+        return $this;
+    }
+
+    protected function getFeeCollection($key)
+    {
+        return Arr::get($this->fees, $key);
     }
 }

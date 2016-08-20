@@ -1,17 +1,16 @@
 <?php
 
 use Mockery as m;
-use Recca0120\Cart\Contracts\Cart as CartContract;
-use Recca0120\Cart\Coupon;
+use Recca0120\Cart\Serializers\SuperClosure;
 
-class CouponTest extends PHPUnit_Framework_TestCase
+class SuperClosureTest extends PHPUnit_Framework_TestCase
 {
     public function tearDown()
     {
         m::close();
     }
 
-    public function test_serialize_default_handler()
+    public function test_serialize()
     {
         /*
         |------------------------------------------------------------
@@ -19,7 +18,7 @@ class CouponTest extends PHPUnit_Framework_TestCase
         |------------------------------------------------------------
         */
 
-        $coupon = new Coupon('test', 'test');
+        $serializer = new SuperClosure();
 
         /*
         |------------------------------------------------------------
@@ -27,21 +26,16 @@ class CouponTest extends PHPUnit_Framework_TestCase
         |------------------------------------------------------------
         */
 
-        $serialized = serialize($coupon);
-
         /*
         |------------------------------------------------------------
         | Assertion
         |------------------------------------------------------------
         */
 
-        $unserialized = unserialize($serialized);
-        $this->assertTrue(is_string($serialized));
-        $this->assertTrue(is_array($unserialized->getHandler()));
-        $unserialized->getHandler();
+        $this->assertTrue(is_string($serializer->serialize(function () {})));
     }
 
-    public function test_serialize_custom_handler()
+    public function test_unserialize()
     {
         /*
         |------------------------------------------------------------
@@ -49,9 +43,7 @@ class CouponTest extends PHPUnit_Framework_TestCase
         |------------------------------------------------------------
         */
 
-        $coupon = new Coupon('test', 'test', function (CartContract $cart) {
-            return 0;
-        });
+        $serializer = new SuperClosure();
 
         /*
         |------------------------------------------------------------
@@ -59,7 +51,31 @@ class CouponTest extends PHPUnit_Framework_TestCase
         |------------------------------------------------------------
         */
 
-        $serialized = serialize($coupon);
+        /*
+        |------------------------------------------------------------
+        | Assertion
+        |------------------------------------------------------------
+        */
+
+        $serialized = $serializer->serialize(function () {});
+        $this->assertTrue($serializer->unserialize($serialized) instanceof Closure);
+    }
+
+    public function test_cannot_unserialize()
+    {
+        /*
+        |------------------------------------------------------------
+        | Set
+        |------------------------------------------------------------
+        */
+
+        $serializer = new SuperClosure();
+
+        /*
+        |------------------------------------------------------------
+        | Expectation
+        |------------------------------------------------------------
+        */
 
         /*
         |------------------------------------------------------------
@@ -67,9 +83,6 @@ class CouponTest extends PHPUnit_Framework_TestCase
         |------------------------------------------------------------
         */
 
-        $unserialized = unserialize($serialized);
-        $this->assertTrue(is_string($serialized));
-        $this->assertInstanceOf(Closure::class, $unserialized->getHandler());
-        $unserialized->getHandler();
+        $this->assertSame('foo', $serializer->unserialize('foo'));
     }
 }

@@ -3,7 +3,7 @@
 namespace Recca0120\Cart;
 
 use Closure;
-use Recca0120\Cart\Serializer\SerializerFactory;
+use Recca0120\Cart\Serializers\SerializerFactory;
 
 trait HandlerSerializer
 {

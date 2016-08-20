@@ -2,6 +2,6 @@
 
 namespace Recca0120\Cart;
 
-class Coupon extends FeeSpec
+class Coupon extends Fee
 {
 }

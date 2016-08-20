@@ -1,23 +1,19 @@
 <?php
 
-namespace Recca0120\Cart\Serializer;
+namespace Recca0120\Cart\Serializers;
 
 use Closure;
 use Opis\Closure\SerializableClosure;
 
 class OpisClosure extends SerializerFactory
 {
-    public function serialize(Closure $closure)
+    public function doSerialize(Closure $closure)
     {
         return serialize(new SerializableClosure($closure));
     }
 
-    public function unserialize($serialized)
+    public function doUnSerialize($serialized)
     {
-        if ($this->isUnserialized($serialized) === false) {
-            return $serialized;
-        }
-
         return unserialize($serialized)->getClosure();
     }
 }
