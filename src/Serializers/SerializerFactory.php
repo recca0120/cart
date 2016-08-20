@@ -29,13 +29,14 @@ abstract class SerializerFactory
 
     protected function isUnserialized($serialized)
     {
-        return (is_string($serialized) === true && Str::contains($serialized, 'SerializableClosure') === true);
+        return is_string($serialized) === true && Str::contains($serialized, 'SerializableClosure') === true;
     }
 
     public function serialize(Closure $closure)
     {
         return $this->doSerialize($closure);
     }
+
     public function unserialize($serialized)
     {
         if ($this->isUnserialized($serialized) === false) {
@@ -46,5 +47,6 @@ abstract class SerializerFactory
     }
 
     abstract protected function doSerialize(Closure $closure);
+
     abstract protected function doUnSerialize($serialized);
 }

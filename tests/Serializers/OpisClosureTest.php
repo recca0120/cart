@@ -32,7 +32,8 @@ class OpisClosureTest extends PHPUnit_Framework_TestCase
         |------------------------------------------------------------
         */
 
-        $this->assertTrue(is_string($serializer->serialize(function () {})));
+        $this->assertTrue(is_string($serializer->serialize(function () {
+        })));
     }
 
     public function test_unserialize()
@@ -57,7 +58,8 @@ class OpisClosureTest extends PHPUnit_Framework_TestCase
         |------------------------------------------------------------
         */
 
-        $serialized = $serializer->serialize(function () {});
+        $serialized = $serializer->serialize(function () {
+        });
         $this->assertTrue($serializer->unserialize($serialized) instanceof Closure);
     }
 
