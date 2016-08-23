@@ -219,7 +219,7 @@ class CartTest extends PHPUnit_Framework_TestCase
         $description = '打8折';
         $rate = .8;
         $coupon = new Coupon($code, $description, function ($cart) use ($rate) {
-            return $cart->grossTotal() * $rate;
+            return $cart->subtotal() * $rate;
         });
 
         /*
@@ -228,12 +228,12 @@ class CartTest extends PHPUnit_Framework_TestCase
         |------------------------------------------------------------
         */
 
-        $grossTotal = $items->sum(function ($item) {
+        $subtotal = $items->sum(function ($item) {
             return $item->total();
         });
 
-        $discount = $cart->grossTotal() * $rate;
-        $total = $grossTotal - $discount;
+        $discount = $cart->subtotal() * $rate;
+        $total = $subtotal - $discount;
 
         /*
         |------------------------------------------------------------
@@ -242,7 +242,7 @@ class CartTest extends PHPUnit_Framework_TestCase
         */
 
         $cart->addCoupon($coupon);
-        $this->assertSame((float) $grossTotal, $cart->grossTotal());
+        $this->assertSame((float) $subtotal, $cart->subtotal());
         $this->assertSame((float) $total, $cart->total());
 
         $this->assertSame($code, $coupon->getCode());
@@ -251,8 +251,8 @@ class CartTest extends PHPUnit_Framework_TestCase
         $this->assertSame(0, $coupon->defaultHandler($cart, $coupon));
 
         $cart->removeCoupon($coupon->getCode());
-        $this->assertSame((float) $grossTotal, $cart->grossTotal());
-        $this->assertSame((float) $grossTotal, $cart->total());
+        $this->assertSame((float) $subtotal, $cart->subtotal());
+        $this->assertSame((float) $subtotal, $cart->total());
     }
 
     public function test_add_coupon_20_percent_off_fixed()
@@ -272,7 +272,7 @@ class CartTest extends PHPUnit_Framework_TestCase
         $description = '打8折';
         $rate = .8;
         $coupon = new Coupon($code, $description, function ($cart) use ($rate) {
-            return $cart->grossTotal() * $rate;
+            return $cart->subtotal() * $rate;
         });
 
         /*
@@ -281,12 +281,12 @@ class CartTest extends PHPUnit_Framework_TestCase
         |------------------------------------------------------------
         */
 
-        $grossTotal = $items->sum(function ($item) {
+        $subtotal = $items->sum(function ($item) {
             return $item->total();
         });
 
-        $discount = $cart->grossTotal() * $rate;
-        $total = $grossTotal - $discount;
+        $discount = $cart->subtotal() * $rate;
+        $total = $subtotal - $discount;
 
         $cart->setHandler(function ($total, $options) {
             return round($total);
@@ -299,7 +299,7 @@ class CartTest extends PHPUnit_Framework_TestCase
         */
 
         $cart->addCoupon($coupon);
-        $this->assertSame((float) $grossTotal, $cart->grossTotal());
+        $this->assertSame((float) $subtotal, $cart->subtotal());
         $this->assertSame(round($total), $cart->total());
 
         $this->assertSame($code, $coupon->getCode());
@@ -308,8 +308,8 @@ class CartTest extends PHPUnit_Framework_TestCase
         $this->assertSame(0, $coupon->defaultHandler($cart, $coupon));
 
         $cart->removeCoupon($coupon->getCode());
-        $this->assertSame((float) $grossTotal, $cart->grossTotal());
-        $this->assertSame((float) $grossTotal, $cart->total());
+        $this->assertSame((float) $subtotal, $cart->subtotal());
+        $this->assertSame((float) $subtotal, $cart->total());
     }
 
     public function test_add_fee()
@@ -337,7 +337,7 @@ class CartTest extends PHPUnit_Framework_TestCase
         |------------------------------------------------------------
         */
 
-        $grossTotal = $items->sum(function ($item) {
+        $subtotal = $items->sum(function ($item) {
             return $item->total();
         });
 
@@ -348,16 +348,16 @@ class CartTest extends PHPUnit_Framework_TestCase
         */
 
         $cart->addFee($fee);
-        $this->assertSame((float) $grossTotal, $cart->grossTotal());
-        $this->assertSame((float) $grossTotal + 120, $cart->total());
+        $this->assertSame((float) $subtotal, $cart->subtotal());
+        $this->assertSame((float) $subtotal + 120, $cart->total());
 
         $this->assertSame($code, $fee->getCode());
         $this->assertSame($description, $fee->getDescription());
         $this->assertSame(0, $fee->defaultHandler($cart, $fee));
 
         $cart->removeFee($fee->getCode());
-        $this->assertSame((float) $grossTotal, $cart->grossTotal());
-        $this->assertSame((float) $grossTotal, $cart->total());
+        $this->assertSame((float) $subtotal, $cart->subtotal());
+        $this->assertSame((float) $subtotal, $cart->total());
     }
 
     public function test_free_shipping()
@@ -383,8 +383,8 @@ class CartTest extends PHPUnit_Framework_TestCase
         $code = 'shipping-fee';
         $description = '滿10免運費';
         $coupon = new Coupon($code, $description, function (Cart $cart, Coupon $coupon) use ($shippingFee) {
-            return $cart->grossTotal() >= 10 ? $shippingFee : 0;
-            // if ($cart->grossTotal() >= 10) {
+            return $cart->subtotal() >= 10 ? $shippingFee : 0;
+            // if ($cart->subtotal() >= 10) {
             //     $cart->removeFee('shipping-fee');
             // }
             //
@@ -397,7 +397,7 @@ class CartTest extends PHPUnit_Framework_TestCase
         |------------------------------------------------------------
         */
 
-        $grossTotal = $items->sum(function ($item) {
+        $subtotal = $items->sum(function ($item) {
             return $item->total();
         });
 
@@ -408,13 +408,13 @@ class CartTest extends PHPUnit_Framework_TestCase
         */
 
         $cart->addFee($fee);
-        $this->assertSame((float) $grossTotal, $cart->grossTotal());
-        $this->assertSame((float) $grossTotal + 120, $cart->total());
+        $this->assertSame((float) $subtotal, $cart->subtotal());
+        $this->assertSame((float) $subtotal + 120, $cart->total());
 
-        $total = $grossTotal >= 10 ? $grossTotal : $grossTotal + 120;
+        $total = $subtotal >= 10 ? $subtotal : $subtotal + 120;
 
         $cart->addCoupon($coupon);
-        $this->assertSame((float) $grossTotal, $cart->grossTotal());
+        $this->assertSame((float) $subtotal, $cart->subtotal());
         $this->assertSame((float) $total, $cart->total());
     }
 

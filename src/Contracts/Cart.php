@@ -20,7 +20,7 @@ interface Cart extends Handler
 
     public function count();
 
-    public function grossTotal();
+    public function subtotal();
 
     public function total();
 

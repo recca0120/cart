@@ -82,7 +82,7 @@ class Cart implements CartContract
         return $this->items()->count();
     }
 
-    public function grossTotal()
+    public function subtotal()
     {
         return (float) $this->items()->total();
     }
@@ -97,14 +97,14 @@ class Cart implements CartContract
             return $total + $fee->getValue();
         }, 0);
 
-        $grossTotal = $this->grossTotal();
+        $subtotal = $this->subtotal();
 
-        $total = $this->grossTotal() + $fee - $coupon;
+        $total = $this->subtotal() + $fee - $coupon;
 
         $params = [
             'total'      => $total,
             'options'    => [
-                'grossTotal' => $grossTotal,
+                'subtotal' => $subtotal,
                 'coupon'     => $coupon,
                 'fee'        => $fee,
                 'cart'       => $this,
