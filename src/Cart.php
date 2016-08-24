@@ -104,7 +104,7 @@ class Cart implements CartContract
         $params = [
             'total'      => $total,
             'options'    => [
-                'subtotal' => $subtotal,
+                'subtotal'   => $subtotal,
                 'coupon'     => $coupon,
                 'fee'        => $fee,
                 'cart'       => $this,

@@ -22,7 +22,8 @@
         "mockery/mockery": "~0.9.2",
         "nesbot/carbon": "~1.20",
         "phpunit/phpunit": "~4.1",
-        "fzaninotto/faker": "^1.6"
+        "fzaninotto/faker": "^1.6",
+        "opis/closure": "^2.2"
     },
     "autoload": {
         "psr-4": {
