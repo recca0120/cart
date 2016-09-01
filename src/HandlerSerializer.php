@@ -7,6 +7,13 @@ use Recca0120\Cart\Serializers\SerializerFactory;
 
 trait HandlerSerializer
 {
+    /**
+     * getHandler.
+     *
+     * @method getHandler
+     *
+     * @return callable
+     */
     public function getHandler()
     {
         if (is_null($this->handler) === true) {
@@ -16,6 +23,15 @@ trait HandlerSerializer
         return SerializerFactory::factory()->unserialize($this->handler);
     }
 
+    /**
+     * setHandler.
+     *
+     * @method setHandler
+     *
+     * @param callable $handler
+     *
+     * @return static
+     */
     public function setHandler(callable $handler = null)
     {
         if (is_null($handler) === true) {

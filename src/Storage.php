@@ -10,10 +10,27 @@ use Symfony\Component\HttpFoundation\Session\Storage\PhpBridgeSessionStorage;
 
 class Storage implements StorageContract
 {
+    /**
+     * $sessionInstance.
+     *
+     * @var \Symfony\Component\HttpFoundation\Session\SessionInterface
+     */
     protected static $sessionInstance = null;
 
+    /**
+     * $session.
+     *
+     * @var \Symfony\Component\HttpFoundation\Session\SessionInterface
+     */
     protected $session;
 
+    /**
+     * __construct.
+     *
+     * @method __construct
+     *
+     * @param \Symfony\Component\HttpFoundation\Session\SessionInterface $session
+     */
     public function __construct(SessionInterface $session = null)
     {
         if (is_null($session) === false) {
@@ -22,6 +39,13 @@ class Storage implements StorageContract
         $this->session = $this->getSession();
     }
 
+    /**
+     * getSession.
+     *
+     * @method getSession
+     *
+     * @return \Symfony\Component\HttpFoundation\Session\Storage\SessionStorageInterface
+     */
     protected function getSession()
     {
         $session = (is_null(static::$sessionInstance) === true) ?
@@ -41,21 +65,58 @@ class Storage implements StorageContract
         return $session;
     }
 
+    /**
+     * set.
+     *
+     * @method set
+     *
+     * @param string $key
+     * @param mixed  $value
+     *
+     * @return static
+     */
     public function set($key, $value)
     {
         $this->session->set($this->hash($key), $value);
+
+        return $this;
     }
 
+    /**
+     * get.
+     *
+     * @method get
+     *
+     * @param string $key
+     *
+     * @return mixed
+     */
     public function get($key)
     {
         return $this->session->get($this->hash($key), []);
     }
 
+    /**
+     * hash.
+     *
+     * @method hash
+     *
+     * @param string $key
+     *
+     * @return string
+     */
     protected function hash($key)
     {
         return hash('sha256', $key);
     }
 
+    /**
+     * getDefaultSessionStorage.
+     *
+     * @method getDefaultSessionStorage
+     *
+     * @return \Symfony\Component\HttpFoundation\Session\Storage\SessionStorageInterface
+     */
     protected function getDefaultSessionStorage()
     {
         return (PHP_SESSION_ACTIVE === session_status()) ?
@@ -63,6 +124,13 @@ class Storage implements StorageContract
             new NativeSessionStorage();
     }
 
+    /**
+     * setSession.
+     *
+     * @method setSession
+     *
+     * @param \Symfony\Component\HttpFoundation\Session\SessionInterface $session
+     */
     public static function setSession(SessionInterface $session)
     {
         static::$sessionInstance = $session;
