@@ -48,8 +48,8 @@ class Cart implements CartContract
      * @var array
      */
     protected $fees = [
-        'coupons'   => null,
-        'fees'      => null,
+        'coupons' => null,
+        'fees' => null,
     ];
 
     /**
@@ -209,12 +209,12 @@ class Cart implements CartContract
         $total = $this->subtotal() + $fee - $coupon;
 
         $params = [
-            'total'      => $total,
-            'options'    => [
-                'subtotal'   => $subtotal,
-                'coupon'     => $coupon,
-                'fee'        => $fee,
-                'cart'       => $this,
+            'total' => $total,
+            'options' => [
+                'subtotal' => $subtotal,
+                'coupon' => $coupon,
+                'fee' => $fee,
+                'cart' => $this,
             ],
         ];
 
@@ -304,8 +304,8 @@ class Cart implements CartContract
     public function save()
     {
         $this->storage->set($this->getName(), [
-            'items'   => $this->items,
-            'fees'    => $this->fees,
+            'items' => $this->items,
+            'fees' => $this->fees,
             'handler' => $this->getHandler(),
         ]);
 
