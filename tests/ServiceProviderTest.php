@@ -1,6 +1,6 @@
 <?php
 
-use Illuminate\Contracts\Foundation\Application as ApplicationContract;
+use Illuminate\Contracts\Foundation\Application;
 use Mockery as m;
 use Recca0120\Cart\Cart;
 use Recca0120\Cart\Contracts\Cart as CartContract;
@@ -29,7 +29,7 @@ class ServiceProviderTest extends PHPUnit_Framework_TestCase
         |------------------------------------------------------------
         */
 
-        $app = m::mock(ApplicationContract::class);
+        $app = m::mock(Application::class);
 
         /*
         |------------------------------------------------------------

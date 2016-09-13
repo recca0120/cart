@@ -3,8 +3,8 @@
 namespace Recca0120\Cart\Collections;
 
 use Illuminate\Support\Collection;
-use Recca0120\Cart\Contracts\Cart as CartContract;
-use Recca0120\Cart\Contracts\Fee as FeeContract;
+use Recca0120\Cart\Contracts\Cart;
+use Recca0120\Cart\Contracts\Fee;
 use Recca0120\Cart\Contracts\FeeCollection as FeeCollectionContract;
 
 class FeeCollection extends Collection implements FeeCollectionContract
@@ -18,7 +18,7 @@ class FeeCollection extends Collection implements FeeCollectionContract
      *
      * @return static
      */
-    public function add(FeeContract $Fee)
+    public function add(Fee $Fee)
     {
         $this->put($Fee->getCode(), $Fee);
 
@@ -36,7 +36,7 @@ class FeeCollection extends Collection implements FeeCollectionContract
      */
     public function remove($Fee)
     {
-        $code = ($Fee instanceof FeeContract) ? $Fee->getCode() : $Fee;
+        $code = ($Fee instanceof Fee) ? $Fee->getCode() : $Fee;
         $this->forget($code);
 
         return $this;
@@ -47,11 +47,11 @@ class FeeCollection extends Collection implements FeeCollectionContract
      *
      * @method apply
      *
-     * @param CartContract $cart
+     * @param \Recca0120\Cart\Contracts\Cart $cart
      *
      * @return static
      */
-    public function apply(CartContract $cart)
+    public function apply(Cart $cart)
     {
         return $this->map(function ($Fee) use ($cart) {
             return $Fee->apply($cart);

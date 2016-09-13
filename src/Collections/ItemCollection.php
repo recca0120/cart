@@ -3,7 +3,7 @@
 namespace Recca0120\Cart\Collections;
 
 use Illuminate\Support\Collection;
-use Recca0120\Cart\Contracts\Item as ItemContract;
+use Recca0120\Cart\Contracts\Item;
 use Recca0120\Cart\Contracts\ItemCollection as ItemCollectionContract;
 
 class ItemCollection extends Collection implements ItemCollectionContract
@@ -17,7 +17,7 @@ class ItemCollection extends Collection implements ItemCollectionContract
      *
      * @return static
      */
-    public function add(ItemContract $item, $quantity = 0)
+    public function add(Item $item, $quantity = 0)
     {
         $item->setQuantity($quantity);
         $this->put($item->getSku(), $item);
@@ -36,7 +36,7 @@ class ItemCollection extends Collection implements ItemCollectionContract
      */
     public function remove($item)
     {
-        $sku = ($item instanceof ItemContract) ? $item->getSku() : $item;
+        $sku = ($item instanceof Item) ? $item->getSku() : $item;
         $this->forget($sku);
 
         return $this;
@@ -51,7 +51,7 @@ class ItemCollection extends Collection implements ItemCollectionContract
      */
     public function total()
     {
-        return (float) $this->sum(function (ItemContract $item) {
+        return (float) $this->sum(function (Item $item) {
             return $item->total();
         });
     }

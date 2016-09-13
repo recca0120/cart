@@ -1,7 +1,7 @@
 <?php
 
 use Mockery as m;
-use Recca0120\Cart\Contracts\Cart as CartContract;
+use Recca0120\Cart\Contracts\Cart;
 use Recca0120\Cart\Fee;
 
 class FeeTest extends PHPUnit_Framework_TestCase
@@ -49,7 +49,7 @@ class FeeTest extends PHPUnit_Framework_TestCase
         |------------------------------------------------------------
         */
 
-        $fee = new Fee('test', 'test', function (CartContract $cart) {
+        $fee = new Fee('test', 'test', function (Cart $cart) {
             return 0;
         });
 
