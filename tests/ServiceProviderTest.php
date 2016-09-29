@@ -1,18 +1,7 @@
 <?php
 
-use Illuminate\Contracts\Foundation\Application;
 use Mockery as m;
-use Recca0120\Cart\Cart;
-use Recca0120\Cart\Contracts\Cart as CartContract;
-use Recca0120\Cart\Contracts\Coupon as CouponContract;
-use Recca0120\Cart\Contracts\Fee as FeeContract;
-use Recca0120\Cart\Contracts\Item as ItemContract;
-use Recca0120\Cart\Contracts\Storage as StorageContract;
-use Recca0120\Cart\Coupon;
-use Recca0120\Cart\Fee;
-use Recca0120\Cart\Item;
 use Recca0120\Cart\ServiceProvider;
-use Recca0120\Cart\Storage;
 
 class ServiceProviderTest extends PHPUnit_Framework_TestCase
 {
@@ -29,7 +18,7 @@ class ServiceProviderTest extends PHPUnit_Framework_TestCase
         |------------------------------------------------------------
         */
 
-        $app = m::mock(Application::class);
+        $app = m::mock('Illuminate\Contracts\Foundation\Application');
 
         /*
         |------------------------------------------------------------
@@ -38,11 +27,11 @@ class ServiceProviderTest extends PHPUnit_Framework_TestCase
         */
 
         $app
-            ->shouldReceive('singleton')->with(StorageContract::class, Storage::class)->once()
-            ->shouldReceive('singleton')->with(CartContract::class, Cart::class)->once()
-            ->shouldReceive('bind')->with(ItemContract::class, Item::class)->once()
-            ->shouldReceive('bind')->with(CouponContract::class, Coupon::class)->once()
-            ->shouldReceive('bind')->with(FeeContract::class, Fee::class)->once();
+            ->shouldReceive('singleton')->with('Recca0120\Cart\Contracts\Storage', 'Recca0120\Cart\Storage')->once()
+            ->shouldReceive('singleton')->with('Recca0120\Cart\Contracts\Cart', 'Recca0120\Cart\Cart')->once()
+            ->shouldReceive('bind')->with('Recca0120\Cart\Contracts\Item', 'Recca0120\Cart\Item')->once()
+            ->shouldReceive('bind')->with('Recca0120\Cart\Contracts\Coupon', 'Recca0120\Cart\Coupon')->once()
+            ->shouldReceive('bind')->with('Recca0120\Cart\Contracts\Fee', 'Recca0120\Cart\Fee')->once();
 
         /*
         |------------------------------------------------------------

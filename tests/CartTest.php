@@ -7,7 +7,6 @@ use Recca0120\Cart\Coupon;
 use Recca0120\Cart\Fee;
 use Recca0120\Cart\Item;
 use Recca0120\Cart\Storage;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class CartTest extends PHPUnit_Framework_TestCase
 {
@@ -24,7 +23,7 @@ class CartTest extends PHPUnit_Framework_TestCase
         |------------------------------------------------------------
         */
 
-        $session = m::mock(SessionInterface::class);
+        $session = m::mock('Symfony\Component\HttpFoundation\Session\SessionInterface');
 
         /*
         |------------------------------------------------------------

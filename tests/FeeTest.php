@@ -69,6 +69,6 @@ class FeeTest extends PHPUnit_Framework_TestCase
 
         $unserialized = unserialize($serialized);
         $this->assertTrue(is_string($serialized));
-        $this->assertInstanceOf(Closure::class, $unserialized->getHandler());
+        $this->assertInstanceOf('Closure', $unserialized->getHandler());
     }
 }

@@ -1,8 +1,6 @@
 <?php
 
-use Illuminate\Contracts\Foundation\Application as ApplicationContract;
 use Mockery as m;
-use Recca0120\Cart\Contracts\Cart as CartContract;
 use Recca0120\Cart\Facades\Cart;
 
 class CartFacadeTest extends PHPUnit_Framework_TestCase
@@ -20,7 +18,7 @@ class CartFacadeTest extends PHPUnit_Framework_TestCase
         |------------------------------------------------------------
         */
 
-        $app = m::mock(ApplicationContract::class.','.ArrayAccess::class);
+        $app = m::mock('Illuminate\Contracts\Foundation\Application, ArrayAccess');
         Cart::setFacadeApplication($app);
 
         /*
@@ -29,7 +27,7 @@ class CartFacadeTest extends PHPUnit_Framework_TestCase
         |------------------------------------------------------------
         */
 
-        $app->shouldReceive('offsetGet')->with(CartContract::class)->once();
+        $app->shouldReceive('offsetGet')->with('Recca0120\Cart\Contracts\Cart')->once();
 
         /*
         |------------------------------------------------------------
