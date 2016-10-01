@@ -18,7 +18,9 @@ class ServiceProviderTest extends PHPUnit_Framework_TestCase
         |------------------------------------------------------------
         */
 
-        $app = m::mock('Illuminate\Contracts\Foundation\Application');
+        $app = m::mock('Illuminate\Contracts\Foundation\Application, ArrayAccess');
+        $sessionManager = m::mock('Illuminate\Session\SessionManager');
+        $session = m::mock('Illuminate\Session\SessionInterface');
 
         /*
         |------------------------------------------------------------
@@ -26,8 +28,17 @@ class ServiceProviderTest extends PHPUnit_Framework_TestCase
         |------------------------------------------------------------
         */
 
+        $sessionManager->shouldReceive('driver')->once()->andReturn($session);
+
+        $session
+            ->shouldReceive('isStarted')->once()->andReturn(false)
+            ->shouldReceive('start')->once()->andReturn(false);
+
         $app
-            ->shouldReceive('singleton')->with('Recca0120\Cart\Contracts\Storage', 'Recca0120\Cart\Storage')->once()
+            ->shouldreceive('offsetGet')->with('session')->once()->andReturn($sessionManager)
+            ->shouldReceive('singleton')->with('Recca0120\Cart\Contracts\Storage', m::type('Closure'))->once()->andReturnUsing(function ($className, $closure) use ($app) {
+                $closure($app);
+            })
             ->shouldReceive('singleton')->with('Recca0120\Cart\Contracts\Cart', 'Recca0120\Cart\Cart')->once()
             ->shouldReceive('bind')->with('Recca0120\Cart\Contracts\Item', 'Recca0120\Cart\Item')->once()
             ->shouldReceive('bind')->with('Recca0120\Cart\Contracts\Coupon', 'Recca0120\Cart\Coupon')->once()

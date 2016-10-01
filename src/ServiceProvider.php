@@ -16,7 +16,9 @@ class ServiceProvider extends BaseServiceProvider
      */
     public function register()
     {
-        $this->app->singleton(StorageContract::class, Storage::class);
+        $this->app->singleton(StorageContract::class, function ($app) {
+            return new Storage($app['session']->driver());
+        });
         $this->app->singleton(CartContract::class, Cart::class);
         $this->app->bind(ItemContract::class, Item::class);
         $this->app->bind(CouponContract::class, Coupon::class);
