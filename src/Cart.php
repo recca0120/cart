@@ -2,7 +2,6 @@
 
 namespace Recca0120\Cart;
 
-use Illuminate\Support\Arr;
 use Recca0120\Cart\Collections\FeeCollection;
 use Recca0120\Cart\Collections\ItemCollection;
 use Recca0120\Cart\Contracts\Cart as CartContract;
@@ -116,10 +115,10 @@ class Cart implements CartContract
         $this->storage = (is_null($storage) === false) ? $storage : new Storage();
         $data = $this->storage->get($this->getName());
 
-        $this->setItemCollection(Arr::get($data, 'items'));
-        $this->setHandler(Arr::get($data, 'handler'));
+        $this->setItemCollection(array_get($data, 'items'));
+        $this->setHandler(array_get($data, 'handler'));
         foreach ($this->fees as $key => $value) {
-            $this->setFeeCollection($key, Arr::get($data, 'fees.'.$key));
+            $this->setFeeCollection($key, array_get($data, 'fees.'.$key));
         }
 
         return $this;
@@ -448,6 +447,6 @@ class Cart implements CartContract
      */
     protected function getFeeCollection($key)
     {
-        return Arr::get($this->fees, $key);
+        return array_get($this->fees, $key);
     }
 }
