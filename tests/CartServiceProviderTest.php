@@ -1,15 +1,18 @@
 <?php
 
 use Mockery as m;
-use Recca0120\Cart\ServiceProvider;
+use Recca0120\Cart\CartServiceProvider;
 
-class ServiceProviderTest extends PHPUnit_Framework_TestCase
+class CartServiceProviderTest extends PHPUnit_Framework_TestCase
 {
     public function tearDown()
     {
         m::close();
     }
 
+    /**
+     * @runInSeparateProcess
+     */
     public function test_register()
     {
         /*
@@ -50,7 +53,7 @@ class ServiceProviderTest extends PHPUnit_Framework_TestCase
         |------------------------------------------------------------
         */
 
-        $serviceProvider = new ServiceProvider($app);
+        $serviceProvider = new CartServiceProvider($app);
         $serviceProvider->register();
     }
 }

@@ -131,7 +131,7 @@ class Storage implements StorageContract
      *
      * @param \Symfony\Component\HttpFoundation\Session\SessionInterface $session
      */
-    public static function setSession(SessionInterface $session)
+    public static function setSession(SessionInterface $session = null)
     {
         static::$sessionInstance = $session;
     }
