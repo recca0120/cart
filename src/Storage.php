@@ -2,8 +2,8 @@
 
 namespace Recca0120\Cart;
 
-use Recca0120\Cart\Contracts\Storage as StorageContract;
 use Symfony\Component\HttpFoundation\Session\Session;
+use Recca0120\Cart\Contracts\Storage as StorageContract;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage;
 use Symfony\Component\HttpFoundation\Session\Storage\PhpBridgeSessionStorage;

@@ -1,8 +1,8 @@
 <?php
 
 use Mockery as m;
-use Recca0120\Cart\Contracts\Cart;
 use Recca0120\Cart\Fee;
+use Recca0120\Cart\Contracts\Cart;
 
 class FeeTest extends PHPUnit_Framework_TestCase
 {

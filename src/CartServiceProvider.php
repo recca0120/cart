@@ -2,12 +2,12 @@
 
 namespace Recca0120\Cart;
 
-use Illuminate\Support\ServiceProvider as BaseServiceProvider;
-use Recca0120\Cart\Contracts\Cart as CartContract;
-use Recca0120\Cart\Contracts\Coupon as CouponContract;
 use Recca0120\Cart\Contracts\Fee as FeeContract;
+use Recca0120\Cart\Contracts\Cart as CartContract;
 use Recca0120\Cart\Contracts\Item as ItemContract;
+use Recca0120\Cart\Contracts\Coupon as CouponContract;
 use Recca0120\Cart\Contracts\Storage as StorageContract;
+use Illuminate\Support\ServiceProvider as BaseServiceProvider;
 
 class CartServiceProvider extends BaseServiceProvider
 {
