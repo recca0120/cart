@@ -1,12 +1,12 @@
 <?php
 
-use Faker\Factory as FakerFactory;
 use Mockery as m;
-use Recca0120\Cart\Cart;
-use Recca0120\Cart\Coupon;
 use Recca0120\Cart\Fee;
+use Recca0120\Cart\Cart;
 use Recca0120\Cart\Item;
+use Recca0120\Cart\Coupon;
 use Recca0120\Cart\Storage;
+use Faker\Factory as FakerFactory;
 
 class CartTest extends PHPUnit_Framework_TestCase
 {

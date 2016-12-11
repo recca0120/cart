@@ -4,8 +4,8 @@ namespace Recca0120\Cart;
 
 use BadMethodCallException;
 use Illuminate\Support\Fluent;
-use Recca0120\Cart\Contracts\Cart as CartContract;
 use Recca0120\Cart\Contracts\Fee as FeeContract;
+use Recca0120\Cart\Contracts\Cart as CartContract;
 
 class Fee extends Fluent implements FeeContract
 {

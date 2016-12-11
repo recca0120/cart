@@ -5,8 +5,8 @@ namespace Recca0120\Cart;
 use Illuminate\Support\Arr;
 use Recca0120\Cart\Collections\FeeCollection;
 use Recca0120\Cart\Collections\ItemCollection;
-use Recca0120\Cart\Contracts\Cart as CartContract;
 use Recca0120\Cart\Contracts\Fee as FeeContract;
+use Recca0120\Cart\Contracts\Cart as CartContract;
 use Recca0120\Cart\Contracts\Item as ItemContract;
 use Recca0120\Cart\Contracts\Storage as StorageContract;
 

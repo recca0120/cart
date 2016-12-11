@@ -2,9 +2,9 @@
 
 namespace Recca0120\Cart\Collections;
 
+use Recca0120\Cart\Contracts\Fee;
 use Illuminate\Support\Collection;
 use Recca0120\Cart\Contracts\Cart;
-use Recca0120\Cart\Contracts\Fee;
 use Recca0120\Cart\Contracts\FeeCollection as FeeCollectionContract;
 
 class FeeCollection extends Collection implements FeeCollectionContract
