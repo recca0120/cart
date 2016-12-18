@@ -10,94 +10,47 @@ class ItemTest extends PHPUnit_Framework_TestCase
         m::close();
     }
 
-    public function test_item()
+    public function test_new_item()
     {
         /*
         |------------------------------------------------------------
-        | Set
+        | Arrange
         |------------------------------------------------------------
         */
 
-        $sku = 1;
+        $id = uniqid();
         $name = 'foo';
-        $price = 100.00;
-        $quantity = 0;
-        $options = [];
-
-        $attributes = compact('sku', 'name', 'price', 'quantity', 'options');
-
-        /*
-        |------------------------------------------------------------
-        | Expectation
-        |------------------------------------------------------------
-        */
-
-        $item = new Item($sku, $name, $price);
+        $price = 100;
+        $quantity = 10;
+        $attributes = ['foo'];
+        $array = [
+            'id' => $id,
+            'name' => $name,
+            'price' => $price,
+            'quantity' => $quantity,
+            'attributes' => $attributes,
+        ];
 
         /*
         |------------------------------------------------------------
-        | Assertion
+        | Act
         |------------------------------------------------------------
         */
 
-        $this->assertSame($sku, $item['sku']);
-        $this->assertSame($name, $item['name']);
-        $this->assertSame($price, $item['price']);
-        $this->assertSame($sku, $item->sku);
-        $this->assertSame($name, $item->name);
-        $this->assertSame($price, $item->price);
-        $this->assertSame($sku, $item->getSku());
+        $item = new Item($id, $name, $price, $quantity, $attributes);
+
+        /*
+        |------------------------------------------------------------
+        | Assert
+        |------------------------------------------------------------
+        */
+
+        $this->assertSame($id, $item->getId());
         $this->assertSame($name, $item->getName());
         $this->assertSame($price, $item->getPrice());
-        $this->assertSame($attributes, $item->toArray());
-        $this->assertSame(json_encode($attributes), $item->toJson());
-        $this->assertSame($price * $quantity, $item->total());
-
-        $this->assertTrue(isset($item['sku']));
-        unset($item['sku']);
-        $this->assertFalse(isset($item['sku']));
-        $item['sku'] = $sku;
-        $this->assertTrue(isset($item['sku']));
-    }
-
-    public function test_set_options()
-    {
-        /*
-        |------------------------------------------------------------
-        | Set
-        |------------------------------------------------------------
-        */
-
-        $sku = 1;
-        $name = 'foo';
-        $price = 100.00;
-        $quantity = 0;
-        $options = [];
-
-        $attributes = compact('sku', 'name', 'price', 'quantity', 'options');
-
-        /*
-        |------------------------------------------------------------
-        | Expectation
-        |------------------------------------------------------------
-        */
-
-        $item = new Item($sku, $name, $price);
-
-        /*
-        |------------------------------------------------------------
-        | Assertion
-        |------------------------------------------------------------
-        */
-
-        $options = [
-            'foo' => 'bar',
-        ];
-        $item->setOptions($options);
-        $this->assertSame($options, $item->getOptions());
-        $this->assertSame('bar', $item->getOption('foo'));
-
-        $item->setOptions([]);
-        $item->setOption($options);
+        $this->assertSame($quantity, $item->getQuantity());
+        $this->assertSame($attributes, $item->getAttributes());
+        $this->assertSame($array, $item->toArray());
+        $this->assertSame(json_encode($array), $item->toJson());
     }
 }

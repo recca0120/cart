@@ -11,20 +11,13 @@
     ],
     "require": {
         "php": ">=5.4",
-        "illuminate/support": "^5.0",
-        "illuminate/session": "^5.0",
-        "jeremeamia/superclosure": "^2.2",
-        "symfony/http-foundation": "2.8.*|3.0.*|3.1.*"
-    },
-    "suggest": {
-        "opis/closure": "if function eval is disabled"
+        "symfony/http-foundation": "2.8.*|3.0.*|3.1.*",
+        "illuminate/support": "^5.1"
     },
     "require-dev": {
         "mockery/mockery": "~0.9.4",
         "phpunit/phpunit": "~4.8|~5.4",
-        "nesbot/carbon": "~1.20",
-        "fzaninotto/faker": "^1.6",
-        "opis/closure": "^2.2"
+        "nesbot/carbon": "~1.20"
     },
     "autoload": {
         "psr-4": {
