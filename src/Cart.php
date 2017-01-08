@@ -2,6 +2,8 @@
 
 namespace Recca0120\Cart;
 
+use Illuminate\Support\Collection;
+
 class Cart
 {
     public $items;
@@ -28,7 +30,9 @@ class Cart
 
     public function clear()
     {
-        $this->items = [];
+        $this->items = $this->items->filter(function() {
+            return false;
+        });
 
         return $this;
     }
