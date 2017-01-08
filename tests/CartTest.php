@@ -151,5 +151,4 @@ class CartTest extends PHPUnit_Framework_TestCase
         $cart->clear();
         $this->assertSame(0, $cart->count());
     }
-
 }

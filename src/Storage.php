@@ -2,9 +2,9 @@
 
 namespace Recca0120\Cart;
 
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
-use Symfony\Component\HttpFoundation\Session\Session;
 use Illuminate\Support\Collection;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class Storage
 {
@@ -12,7 +12,8 @@ class Storage
 
     protected $session;
 
-    public function __construct($name = 'default', SessionInterface $session = null) {
+    public function __construct($name = 'default', SessionInterface $session = null)
+    {
         $this->name = $name;
         $this->session = is_null($session) === true ? new Session($session) : $session;
     }
