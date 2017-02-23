@@ -53,10 +53,11 @@ class Storage
      */
     public function store($value)
     {
-        call_user_func_array([
-            $this->session,
-            method_exists($this->session, 'put') ? 'put' : 'set'
-        ], [$this->hash(), $value]);
+        if ($this->session instanceof SessionInterface) {
+            $this->session->set($this->hash(), $value);
+        } else {
+            $this->session->put($this->hash(), $value);
+        }
 
         return $this;
     }
