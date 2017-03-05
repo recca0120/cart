@@ -8,3 +8,6 @@
 [![License](https://poser.pugx.org/recca0120/cart/license.svg)](https://packagist.org/packages/recca0120/cart)
 [![Monthly Downloads](https://poser.pugx.org/recca0120/cart/d/monthly)](https://packagist.org/packages/recca0120/cart)
 [![Daily Downloads](https://poser.pugx.org/recca0120/cart/d/daily)](https://packagist.org/packages/recca0120/cart)
+
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/recca0120/cart/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/recca0120/cart/?branch=master)
+[![Code Coverage](https://scrutinizer-ci.com/g/recca0120/cart/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/recca0120/cart/?branch=master)
