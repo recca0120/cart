@@ -47,7 +47,7 @@ class Storage
     /**
      * store.
      *
-     * @param  mix $value
+     * @param mixed$value
      *
      * @return static
      */
