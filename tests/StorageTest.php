@@ -3,21 +3,21 @@
 namespace Recca0120\Cart\Tests;
 
 use Mockery as m;
-use PHPUnit\Framework\TestCase;
 use Recca0120\Cart\Storage;
+use PHPUnit\Framework\TestCase;
 use Illuminate\Support\Collection;
 
 class StorageTest extends TestCase
 {
-    protected function tearDown()
-    {
-        m::close();
-    }
-
     protected function setUp()
     {
         $this->name = 'default';
         $this->hash = hash('sha256', 'Recca0120\Cart'.$this->name);
+    }
+
+    protected function tearDown()
+    {
+        m::close();
     }
 
     public function testStore()

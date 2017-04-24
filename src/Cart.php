@@ -16,7 +16,6 @@ class Cart implements ArrayAccess, IteratorAggregate
     public $items;
 
     /**
-     *
      * @param \Recca0120\Cart\Storage $storage
      */
     protected $storage;
@@ -30,6 +29,14 @@ class Cart implements ArrayAccess, IteratorAggregate
     {
         $this->storage = is_null($storage) === true ? new Storage() : $storage;
         $this->restore();
+    }
+
+    /**
+     * __destruct.
+     */
+    public function __destruct()
+    {
+        $this->store();
     }
 
     /**
@@ -120,7 +127,8 @@ class Cart implements ArrayAccess, IteratorAggregate
      *
      * @return $this
      */
-    public function restore() {
+    public function restore()
+    {
         $this->items = $this->storage->restore();
 
         return $this;
@@ -159,14 +167,6 @@ class Cart implements ArrayAccess, IteratorAggregate
     public function toJson($option = 0)
     {
         return json_encode($this->toArray(), $option);
-    }
-
-    /**
-     * __destruct.
-     */
-    public function __destruct()
-    {
-        $this->store();
     }
 
     /**

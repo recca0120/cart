@@ -3,10 +3,10 @@
 namespace Recca0120\Cart\Tests;
 
 use Mockery as m;
-use Illuminate\Support\Collection;
-use PHPUnit\Framework\TestCase;
 use Recca0120\Cart\Cart;
 use Recca0120\Cart\Item;
+use PHPUnit\Framework\TestCase;
+use Illuminate\Support\Collection;
 
 class CartTest extends TestCase
 {
