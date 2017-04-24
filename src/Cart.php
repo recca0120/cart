@@ -67,7 +67,7 @@ class Cart implements ArrayAccess, IteratorAggregate
      * remove.
      *
      * @param  \Recca0120\Cart\Item | string $item
-     * @return bool
+     * @return \Illuminate\Support\Collection
      */
     public function remove($item)
     {
