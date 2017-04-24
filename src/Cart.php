@@ -55,7 +55,7 @@ class Cart implements ArrayAccess, IteratorAggregate
     /**
      * get.
      *
-     * @param \Recca0120\Cart\Item $item
+     * @param string $itemId
      * @return $this
      */
     public function get($itemId)
