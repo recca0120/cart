@@ -43,7 +43,6 @@ class Cart implements ArrayAccess, IteratorAggregate
      * put.
      *
      * @param \Recca0120\Cart\Item $item
-     * @param int $quantity
      * @return $this
      */
     public function put(Item $item)
@@ -57,7 +56,6 @@ class Cart implements ArrayAccess, IteratorAggregate
      * get.
      *
      * @param \Recca0120\Cart\Item $item
-     * @param int $quantity
      * @return $this
      */
     public function get($itemId)
@@ -68,7 +66,7 @@ class Cart implements ArrayAccess, IteratorAggregate
     /**
      * remove.
      *
-     * @param  string $id
+     * @param  \Recca0120\Cart\Item | string $item
      * @return bool
      */
     public function remove($item)
