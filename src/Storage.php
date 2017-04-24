@@ -35,21 +35,10 @@ class Storage
     }
 
     /**
-     * hash.
-     *
-     * @return string
-     */
-    protected function hash()
-    {
-        return hash('sha256', __NAMESPACE__.$this->name);
-    }
-
-    /**
      * store.
      *
-     * @param mixed$value
-     *
-     * @return static
+     * @param mixed $value
+     * @return $this
      */
     public function store($value)
     {
@@ -65,10 +54,20 @@ class Storage
     /**
      * restore.
      *
-     * @return bool
+     * @return mixed
      */
     public function restore()
     {
         return $this->session->get($this->hash(), new Collection);
+    }
+
+    /**
+     * hash.
+     *
+     * @return string
+     */
+    protected function hash()
+    {
+        return hash('sha256', __NAMESPACE__.$this->name);
     }
 }

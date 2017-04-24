@@ -1,0 +1,44 @@
+<?php
+
+namespace Recca0120\Cart\Tests;
+
+use Mockery as m;
+use PHPUnit\Framework\TestCase;
+use Recca0120\Cart\Storage;
+use Illuminate\Support\Collection;
+
+class StorageTest extends TestCase
+{
+    protected function tearDown()
+    {
+        m::close();
+    }
+
+    protected function setUp()
+    {
+        $this->name = 'default';
+        $this->hash = hash('sha256', 'Recca0120\Cart'.$this->name);
+    }
+
+    public function testStore()
+    {
+        $storage = new Storage(
+            $this->name = 'default',
+            $session = m::mock('Illuminate\Contracts\Session\Session')
+        );
+        $session->shouldReceive('put')->once()->with($this->hash, $data = ['foo' => 'bar']);
+        $storage->store($data);
+    }
+
+    public function testRestore()
+    {
+        $storage = new Storage(
+            $this->name = 'default',
+            $session = m::mock('Illuminate\Contracts\Session\Session')
+        );
+        $session->shouldReceive('get')->once()->with($this->hash, m::type('Illuminate\Support\Collection'))->andReturn(
+            new Collection()
+        );
+        $this->assertInstanceOf('Illuminate\Support\Collection', $storage->restore());
+    }
+}

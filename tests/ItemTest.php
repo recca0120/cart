@@ -1,56 +1,37 @@
 <?php
 
+namespace Recca0120\Cart\Tests;
+
 use Mockery as m;
+use PHPUnit\Framework\TestCase;
 use Recca0120\Cart\Item;
 
-class ItemTest extends PHPUnit_Framework_TestCase
+class ItemTest extends TestCase
 {
-    public function tearDown()
+    protected function tearDown()
     {
         m::close();
     }
 
-    public function test_new_item()
+    public function testItem()
     {
-        /*
-        |------------------------------------------------------------
-        | Arrange
-        |------------------------------------------------------------
-        */
+        $item = new Item(
+            $id = 'foo',
+            $name = 'bar',
+            $price = 5.0,
+            $quantity = 10,
+            $attributes = ['foo' => 'bar']
+        );
 
-        $id = uniqid();
-        $name = 'foo';
-        $price = 100;
-        $quantity = 10;
-        $attributes = ['foo'];
-        $array = [
+        $this->assertSame($data = [
             'id' => $id,
             'name' => $name,
             'price' => $price,
             'quantity' => $quantity,
             'attributes' => $attributes,
-        ];
+            'total' => $price * $quantity,
+        ], $item->toArray());
 
-        /*
-        |------------------------------------------------------------
-        | Act
-        |------------------------------------------------------------
-        */
-
-        $item = new Item($id, $name, $price, $quantity, $attributes);
-
-        /*
-        |------------------------------------------------------------
-        | Assert
-        |------------------------------------------------------------
-        */
-
-        $this->assertSame($id, $item->getId());
-        $this->assertSame($name, $item->getName());
-        $this->assertSame($price, $item->getPrice());
-        $this->assertSame($quantity, $item->getQuantity());
-        $this->assertSame($attributes, $item->getAttributes());
-        $this->assertSame($array, $item->toArray());
-        $this->assertSame(json_encode($array), $item->toJson());
+        $this->assertSame(json_encode($data), $item->toJson());
     }
 }
