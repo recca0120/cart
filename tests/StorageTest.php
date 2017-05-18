@@ -11,12 +11,14 @@ class StorageTest extends TestCase
 {
     protected function setUp()
     {
+        parent::setUp();
         $this->name = 'default';
         $this->hash = hash('sha256', 'Recca0120\Cart'.$this->name);
     }
 
     protected function tearDown()
     {
+        parent::tearDown();
         m::close();
     }
 
@@ -27,7 +29,7 @@ class StorageTest extends TestCase
             $session = m::mock('Illuminate\Contracts\Session\Session')
         );
         $session->shouldReceive('put')->once()->with($this->hash, $data = ['foo' => 'bar']);
-        $storage->store($data);
+        $this->assertSame($storage, $storage->store($data));
     }
 
     public function testRestore()
